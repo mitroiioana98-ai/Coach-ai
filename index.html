@@ -3,224 +3,272 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>CoachDrive Demo</title>
+<title>CoachDrive — Personal Driving Coach</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
 <style>
 :root{
   --safe:#00C853;--sg:rgba(0,200,83,.22);
   --warn:#FFD600;--wg:rgba(255,214,0,.22);
   --danger:#FF3D00;--dg:rgba(255,61,0,.22);
   --info:#00B0FF;--ig:rgba(0,176,255,.18);
-  --perf:#AA00FF;
-  --bg:#0f1923;--panel:#16212e;--panel2:#1c2d3e;
-  --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);
-  --t1:#fff;--t2:#b0c4d8;--t3:#5c7a94;
+  --perf:#AA00FF;--pg:rgba(170,0,255,.18);
+  --bg:#0d1520;--panel:#131e2c;--panel2:#192536;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.12);
+  --t1:#fff;--t2:#b0c4d8;--t3:#4a6480;
   --fd:'Barlow Condensed',sans-serif;
   --fb:'Barlow',sans-serif;
   --fm:'JetBrains Mono',monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);background:var(--bg);color:var(--t1)}
-
 #map{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
-.leaflet-tile-pane{filter:brightness(.42) saturate(.55) hue-rotate(195deg)}
-.leaflet-control-attribution,.leaflet-control-zoom{display:none!important}
-.leaflet-popup-content-wrapper{background:var(--panel);color:var(--t1);border:1px solid var(--b2);border-radius:14px}
-.leaflet-popup-tip{background:var(--panel)}
+.mapboxgl-ctrl-bottom-left,.mapboxgl-ctrl-bottom-right,.mapboxgl-ctrl-top-right{display:none!important}
 
 /* APP */
 #app{position:fixed;inset:0;z-index:10;pointer-events:none}
 
 /* TOP BAR */
-.topbar{position:absolute;top:0;left:0;right:0;padding:12px 14px 10px;display:flex;align-items:center;gap:10px;background:linear-gradient(to bottom,rgba(15,25,35,.97) 65%,transparent);pointer-events:all;z-index:20}
-.logo{font-family:var(--fd);font-weight:900;font-size:22px;color:var(--safe);text-shadow:0 0 16px var(--sg);letter-spacing:.04em;flex-shrink:0}
+.topbar{position:absolute;top:0;left:0;right:0;padding:14px 14px 10px;display:flex;align-items:center;gap:10px;background:linear-gradient(to bottom,rgba(13,21,32,.98) 60%,transparent);pointer-events:all;z-index:20}
+.logo{font-family:var(--fd);font-weight:900;font-size:23px;color:var(--safe);text-shadow:0 0 20px var(--sg);letter-spacing:.04em;flex-shrink:0}
 .logo span{color:var(--t2);font-weight:400}
+.logo-badge{font-size:9px;font-family:var(--fm);background:var(--safe);color:#000;padding:2px 5px;border-radius:4px;margin-left:4px;vertical-align:middle;font-weight:700}
 
 /* SEARCH */
 .sw{flex:1;position:relative}
-.sbar{width:100%;background:rgba(28,45,62,.98);border:1.5px solid var(--b2);border-radius:28px;padding:10px 36px 10px 14px;display:flex;align-items:center;gap:8px;transition:border-color .2s,border-radius .2s}
+.sbar{width:100%;background:rgba(19,30,44,.98);border:1.5px solid var(--b2);border-radius:30px;padding:10px 36px 10px 14px;display:flex;align-items:center;gap:8px;transition:all .2s}
 .sbar.open{border-color:rgba(0,176,255,.5);border-radius:14px 14px 0 0}
 .si{flex:1;background:transparent;border:none;outline:none;font-size:13px;color:var(--t1);font-family:var(--fb);caret-color:var(--info)}
 .si::placeholder{color:var(--t3)}
-.sx{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:16px;cursor:pointer;color:var(--t3);display:none;background:none;border:none}
-.sr{position:absolute;top:100%;left:0;right:0;background:rgba(18,28,40,.99);border:1.5px solid rgba(0,176,255,.35);border-top:none;border-radius:0 0 14px 14px;max-height:300px;overflow-y:auto;display:none;z-index:200;box-shadow:0 16px 48px rgba(0,0,0,.7)}
+.sx{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:15px;cursor:pointer;color:var(--t3);display:none;background:none;border:none}
+.sr{position:absolute;top:100%;left:0;right:0;background:rgba(15,24,36,.99);border:1.5px solid rgba(0,176,255,.3);border-top:none;border-radius:0 0 14px 14px;max-height:280px;overflow-y:auto;display:none;z-index:200;box-shadow:0 20px 60px rgba(0,0,0,.8)}
 .sr.show{display:block}
 .sri{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
 .sri:last-child{border-bottom:none}
-.sri:hover,.sri:active{background:rgba(0,176,255,.08)}
-.sri-ic{width:34px;height:34px;border-radius:9px;background:rgba(0,176,255,.1);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sri:hover,.sri:active{background:rgba(0,176,255,.07)}
+.sri-ic{width:32px;height:32px;border-radius:8px;background:rgba(0,176,255,.1);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
 .sri-name{font-size:13px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sri-addr{font-size:11px;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sri-d{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--safe);white-space:nowrap;flex-shrink:0;margin-left:auto;padding-left:8px}
-.sr-msg{padding:16px;text-align:center;font-size:12px;color:var(--t3);font-family:var(--fm)}
+.sr-msg{padding:14px;text-align:center;font-size:12px;color:var(--t3);font-family:var(--fm)}
 .livdot{width:7px;height:7px;border-radius:50%;background:var(--safe);box-shadow:0 0 8px var(--sg);animation:blink 2s ease-in-out infinite;flex-shrink:0}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* ROUTE PILLS */
-.rpills{position:absolute;top:66px;left:14px;right:14px;display:none;gap:6px;z-index:16;pointer-events:all}
-.rpills.show{display:flex}
-.rpill{flex:1;padding:8px 4px;border-radius:14px;border:1px solid var(--b2);background:rgba(22,33,46,.95);cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .2s}
-.rpill.active{border-color:var(--safe);background:rgba(0,200,83,.1)}
-.rpill-ico{font-size:18px}
-.rpill-lbl{font-size:9px;font-family:var(--fm);color:var(--t3);letter-spacing:.06em;text-transform:uppercase}
-.rpill-val{font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t2)}
-.rpill.active .rpill-lbl,.rpill.active .rpill-val{color:var(--safe)}
-
-/* DEST CARD */
-#dc{position:absolute;top:66px;left:14px;right:14px;background:rgba(22,33,46,.97);border:1px solid rgba(0,200,83,.3);border-radius:20px;padding:14px 16px;display:none;align-items:center;gap:14px;z-index:15;box-shadow:0 4px 24px rgba(0,0,0,.5);pointer-events:all}
-#dc.show{display:flex}
-.dc-pin{width:40px;height:40px;border-radius:12px;background:rgba(0,200,83,.12);border:1px solid rgba(0,200,83,.25);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.dc-name{font-family:var(--fd);font-size:17px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dc-addr{font-size:11px;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dc-stats{display:flex;gap:14px;margin-top:6px}
-.dc-sv{font-family:var(--fd);font-size:18px;font-weight:800;line-height:1;color:var(--safe)}
-.dc-sl{font-size:9px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:.08em}
-.dc-x{width:30px;height:30px;border-radius:50%;background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0;color:var(--danger)}
+/* LIVE SCORE BADGE */
+#live-score{position:absolute;top:66px;right:14px;z-index:15;pointer-events:none}
+.ls-ring{width:68px;height:68px;position:relative}
+.ls-ring svg{transform:rotate(-90deg)}
+.ls-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ls-grade{font-family:var(--fd);font-size:22px;font-weight:900;line-height:1}
+.ls-label{font-size:8px;font-family:var(--fm);color:var(--t3);letter-spacing:.08em;text-transform:uppercase}
 
 /* WEATHER */
-#wcard{position:absolute;top:66px;left:14px;background:rgba(22,33,46,.95);border:1px solid var(--b2);border-radius:20px;padding:10px 14px;display:flex;align-items:center;gap:10px;z-index:10}
-.wt{font-family:var(--fd);font-size:24px;font-weight:700;line-height:1;color:var(--warn)}
+#wcard{position:absolute;top:66px;left:14px;background:rgba(19,30,44,.95);border:1px solid var(--b2);border-radius:18px;padding:10px 13px;display:flex;align-items:center;gap:10px;z-index:10;pointer-events:none;backdrop-filter:blur(12px)}
+.wt{font-family:var(--fd);font-size:22px;font-weight:700;line-height:1;color:var(--warn)}
 .wc{font-size:11px;color:var(--t2);font-weight:500}
 .wd{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em}
-.wbadge{padding:3px 8px;border-radius:5px;font-size:10px;font-family:var(--fm);font-weight:500;margin-top:4px;display:inline-block}
+.wbadge{padding:3px 7px;border-radius:4px;font-size:9px;font-family:var(--fm);font-weight:600;margin-top:3px;display:inline-block;letter-spacing:.05em}
 .bwet{background:rgba(0,176,255,.15);color:var(--info);border:1px solid rgba(0,176,255,.3)}
 .bdry{background:rgba(0,200,83,.12);color:var(--safe);border:1px solid rgba(0,200,83,.3)}
 .bsnow{background:rgba(170,0,255,.12);color:#cc88ff;border:1px solid rgba(170,0,255,.3)}
 .bfog{background:rgba(255,214,0,.1);color:var(--warn);border:1px solid rgba(255,214,0,.25)}
 
-/* GPS BUBBLE */
-#gbub{position:absolute;top:66px;right:14px;background:rgba(22,33,46,.95);border:1px solid var(--b2);border-radius:20px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:3px;z-index:10;min-width:76px}
-.gspd{font-family:var(--fd);font-size:26px;font-weight:800;line-height:1;color:var(--safe)}
-.gunit{font-size:9px;font-family:var(--fm);color:var(--t3);letter-spacing:.1em}
-.gacc{font-size:10px;color:var(--t3);font-family:var(--fm)}
+/* ROUTE PILLS */
+.rpills{position:absolute;top:66px;left:14px;right:14px;display:none;gap:6px;z-index:16;pointer-events:all}
+.rpills.show{display:flex}
+.rpill{flex:1;padding:8px 4px;border-radius:12px;border:1px solid var(--b2);background:rgba(19,30,44,.96);cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .2s;backdrop-filter:blur(10px)}
+.rpill.active{border-color:var(--safe);background:rgba(0,200,83,.1);box-shadow:0 0 16px rgba(0,200,83,.15)}
+.rpill-ico{font-size:17px}
+.rpill-lbl{font-size:9px;font-family:var(--fm);color:var(--t3);letter-spacing:.06em;text-transform:uppercase}
+.rpill-val{font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t2)}
+.rpill.active .rpill-lbl,.rpill.active .rpill-val{color:var(--safe)}
+.rpill-diff{font-size:9px;font-family:var(--fm);padding:1px 5px;border-radius:3px;margin-top:2px}
+.diff-easy{background:rgba(0,200,83,.15);color:var(--safe)}
+.diff-med{background:rgba(255,214,0,.12);color:var(--warn)}
+.diff-hard{background:rgba(255,61,0,.12);color:var(--danger)}
 
-/* TURN BAR */
-#rbar{position:absolute;left:14px;right:14px;top:66px;background:rgba(16,33,52,.97);border:1.5px solid rgba(0,200,83,.4);border-radius:20px;padding:12px 16px;display:none;align-items:center;gap:14px;z-index:14;box-shadow:0 0 24px rgba(0,200,83,.1)}
-#rbar.show{display:flex}
-.rba{width:44px;height:44px;border-radius:50%;background:rgba(0,200,83,.12);border:2px solid var(--safe);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.rbi{flex:1}
-.rbs{font-family:var(--fd);font-size:18px;font-weight:700;color:var(--t1)}
-.rbd{font-family:var(--fm);font-size:11px;color:var(--safe);margin-top:2px}
-.rbe{font-family:var(--fd);font-size:20px;font-weight:800;color:var(--t1);flex-shrink:0}
-.rbel{font-size:9px;color:var(--t3);font-family:var(--fm);text-align:right}
+/* DEST CARD */
+#dc{position:absolute;top:66px;left:14px;right:14px;background:rgba(19,30,44,.97);border:1px solid rgba(0,200,83,.3);border-radius:18px;padding:13px 15px;display:none;align-items:center;gap:13px;z-index:15;box-shadow:0 4px 30px rgba(0,0,0,.6);pointer-events:all;backdrop-filter:blur(12px)}
+#dc.show{display:flex}
+.dc-pin{width:38px;height:38px;border-radius:11px;background:rgba(0,200,83,.12);border:1px solid rgba(0,200,83,.25);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.dc-name{font-family:var(--fd);font-size:16px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em}
+.dc-addr{font-size:11px;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dc-stats{display:flex;gap:12px;margin-top:5px;align-items:center}
+.dc-sv{font-family:var(--fd);font-size:17px;font-weight:800;line-height:1;color:var(--safe)}
+.dc-sl{font-size:9px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:.08em}
+.dc-diff-badge{padding:3px 8px;border-radius:6px;font-size:10px;font-family:var(--fm);font-weight:700;letter-spacing:.05em;display:flex;align-items:center;gap:4px}
+.dc-x{width:28px;height:28px;border-radius:50%;background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;flex-shrink:0;color:var(--danger)}
 
 /* ALERT */
-#alert{position:absolute;left:14px;right:14px;top:148px;padding:11px 16px;border-radius:14px;display:none;align-items:center;gap:10px;z-index:25;cursor:pointer;pointer-events:all}
+#alert{position:absolute;left:14px;right:14px;top:148px;padding:11px 15px;border-radius:12px;display:none;align-items:center;gap:10px;z-index:25;cursor:pointer;pointer-events:all;backdrop-filter:blur(10px)}
 #alert.show{display:flex;animation:adrop .3s ease}
-@keyframes adrop{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-.aw{background:rgba(255,214,0,.12);border:1px solid rgba(255,214,0,.45)}
-.ad{background:rgba(255,61,0,.12);border:1px solid rgba(255,61,0,.5)}
-.ai{background:rgba(0,176,255,.1);border:1px solid rgba(0,176,255,.35)}
-.as{background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.35)}
+@keyframes adrop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.aw{background:rgba(255,214,0,.1);border:1px solid rgba(255,214,0,.4)}
+.ad{background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.45)}
+.ai{background:rgba(0,176,255,.08);border:1px solid rgba(0,176,255,.3)}
+.as{background:rgba(0,200,83,.08);border:1px solid rgba(0,200,83,.3)}
 
-/* COACH */
-.coach{position:absolute;bottom:196px;left:14px;right:14px;background:rgba(16,33,52,.97);border:1.5px solid rgba(0,176,255,.35);border-radius:28px;padding:13px 17px;display:flex;align-items:center;gap:12px;box-shadow:0 0 40px rgba(0,176,255,.12),0 8px 32px rgba(0,0,0,.5);z-index:10;pointer-events:all}
-.cav{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#00b0ff,#0066cc);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;box-shadow:0 0 14px var(--ig)}
-.clb{font-family:var(--fm);font-size:9px;color:var(--info);letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px}
-.cmg{font-family:var(--fd);font-size:15px;font-weight:600;color:var(--t1);line-height:1.35}
+/* COMMUNITY ALERTS FEED */
+#comm-feed{position:absolute;left:14px;right:14px;top:148px;display:flex;flex-direction:column;gap:6px;z-index:24;pointer-events:none}
+.cf-item{padding:9px 13px;border-radius:10px;display:flex;align-items:center;gap:10px;animation:adrop .3s ease,fadeout 1s ease 6s forwards}
+@keyframes fadeout{to{opacity:0;transform:translateY(-8px)}}
+.cf-radar{background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.4)}
+.cf-accident{background:rgba(255,214,0,.1);border:1px solid rgba(255,214,0,.4)}
+.cf-works{background:rgba(0,176,255,.08);border:1px solid rgba(0,176,255,.3)}
+.cf-txt{font-size:12px;font-weight:500;flex:1}
+.cf-dist{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--t3);flex-shrink:0}
+
+/* TURN BAR */
+#rbar{position:absolute;left:14px;right:14px;top:66px;background:rgba(13,21,32,.97);border:1.5px solid rgba(0,200,83,.35);border-radius:18px;padding:12px 15px;display:none;align-items:center;gap:13px;z-index:14;box-shadow:0 0 30px rgba(0,200,83,.08);backdrop-filter:blur(12px)}
+#rbar.show{display:flex}
+.rba{width:42px;height:42px;border-radius:50%;background:rgba(0,200,83,.1);border:2px solid var(--safe);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.rbi{flex:1}
+.rbs{font-family:var(--fd);font-size:17px;font-weight:700;color:var(--t1);letter-spacing:.02em}
+.rbd{font-family:var(--fm);font-size:10px;color:var(--safe);margin-top:2px}
+.rbe{font-family:var(--fd);font-size:19px;font-weight:800;color:var(--t1);flex-shrink:0}
+.rbel{font-size:9px;color:var(--t3);font-family:var(--fm);text-align:right}
+
+/* COACH PANEL */
+.coach{position:absolute;bottom:196px;left:14px;right:14px;background:rgba(13,21,32,.97);border:1.5px solid rgba(0,176,255,.3);border-radius:26px;padding:13px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 0 40px rgba(0,176,255,.1),0 8px 32px rgba(0,0,0,.6);z-index:10;pointer-events:all;backdrop-filter:blur(16px)}
+.cav{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#00b0ff,#0055cc);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 0 14px var(--ig)}
+.clb{font-family:var(--fm);font-size:9px;color:var(--info);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.cmg{font-family:var(--fd);font-size:14px;font-weight:600;color:var(--t1);line-height:1.35;letter-spacing:.02em}
 .cwv{display:flex;align-items:center;gap:2px;flex-shrink:0}
 .cwb{width:3px;border-radius:2px;background:var(--info);animation:wv 1.1s ease-in-out infinite}
 .cwb:nth-child(1){animation-delay:0s}.cwb:nth-child(2){animation-delay:.12s}.cwb:nth-child(3){animation-delay:.24s}.cwb:nth-child(4){animation-delay:.36s}
-@keyframes wv{0%,100%{height:4px;opacity:.35}50%{height:18px;opacity:1}}
+@keyframes wv{0%,100%{height:4px;opacity:.35}50%{height:17px;opacity:1}}
 
 /* STATUS BAR */
 #sbar{position:absolute;bottom:76px;left:0;right:0;display:none;gap:1px;background:var(--b1);z-index:5}
 #sbar.show{display:flex}
-.sbi{flex:1;background:var(--panel);padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.sbv{font-family:var(--fd);font-size:18px;font-weight:700;line-height:1}
+.sbi{flex:1;background:var(--panel);padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbv{font-family:var(--fd);font-size:17px;font-weight:700;line-height:1}
 .sbl{font-size:9px;color:var(--t3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em}
 
 /* FAB */
 .fab{position:absolute;bottom:84px;right:14px;z-index:15;pointer-events:all}
-.fabt{width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--safe),#00a844);border:none;box-shadow:0 6px 28px var(--sg),0 2px 8px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:22px;gap:2px;transition:all .15s}
+.fabt{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--safe),#00a844);border:none;box-shadow:0 6px 28px var(--sg),0 2px 8px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:22px;gap:1px;transition:all .15s}
 .fabt:active{transform:scale(.92)}
 .fablt{font-size:9px;font-family:var(--fd);font-weight:700;color:#000;letter-spacing:.1em}
 
 /* BOTTOM NAV */
 .botnav{position:absolute;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--b2);display:flex;align-items:center;padding:0 8px;height:72px;pointer-events:all;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px)}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 4px;border-radius:8px;cursor:pointer;background:none;border:none}
-.ni-i{font-size:22px;color:var(--t3);transition:color .2s}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px;border-radius:8px;cursor:pointer;background:none;border:none;position:relative}
+.ni-i{font-size:21px;color:var(--t3);transition:color .2s}
 .ni-l{font-size:10px;color:var(--t3);font-family:var(--fb);transition:color .2s}
 .ni.active .ni-i,.ni.active .ni-l{color:var(--safe)}
+.ni-badge{position:absolute;top:6px;right:calc(50% - 18px);width:16px;height:16px;border-radius:50%;background:var(--danger);font-size:9px;font-family:var(--fm);font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;display:none}
+.ni-badge.show{display:flex}
 
 /* DRIVE HUD */
-#dhud{position:fixed;inset:0;z-index:30;display:none}
+#dhud{position:fixed;inset:0;z-index:30;display:none;pointer-events:none}
 #dhud.on{display:block}
-.dh-top{padding:14px;display:flex;justify-content:space-between;align-items:flex-start;background:linear-gradient(to bottom,rgba(15,25,35,1) 0%,rgba(15,25,35,.7) 70%,transparent)}
-.dspd{font-family:var(--fd);font-size:84px;font-weight:900;line-height:.85;letter-spacing:-3px}
+.dh-top{padding:14px;display:flex;justify-content:space-between;align-items:flex-start;background:linear-gradient(to bottom,rgba(13,21,32,1) 0%,rgba(13,21,32,.75) 70%,transparent)}
+.dspd{font-family:var(--fd);font-size:82px;font-weight:900;line-height:.85;letter-spacing:-3px}
 .dunit{font-family:var(--fm);font-size:10px;color:var(--t3);letter-spacing:.15em;margin-top:4px}
-.dmid{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 10px}
-.darr{width:50px;height:50px;border-radius:50%;background:rgba(0,200,83,.12);border:2px solid var(--safe);display:flex;align-items:center;justify-content:center;font-size:24px}
-.dstr{font-family:var(--fd);font-size:13px;font-weight:600;color:var(--t2);text-align:center;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dmid{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 10px}
+.darr{width:48px;height:48px;border-radius:50%;background:rgba(0,200,83,.12);border:2px solid var(--safe);display:flex;align-items:center;justify-content:center;font-size:23px}
+.dstr{font-family:var(--fd);font-size:12px;font-weight:600;color:var(--t2);text-align:center;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dnd{font-family:var(--fm);font-size:10px;color:var(--safe)}
 .dright{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-.deta{font-family:var(--fd);font-size:20px;font-weight:700}
+.deta{font-family:var(--fd);font-size:19px;font-weight:700}
 .detal{font-size:9px;color:var(--t3);font-family:var(--fm)}
-.dhaz{position:absolute;top:148px;left:14px;right:14px;padding:10px 16px;border-radius:14px;display:none;align-items:center;gap:10px;z-index:32}
+/* LIVE score in drive */
+.d-live-score{display:flex;flex-direction:column;align-items:flex-end}
+.dls-grade{font-family:var(--fd);font-size:28px;font-weight:900;line-height:1}
+.dls-lbl{font-size:8px;font-family:var(--fm);color:var(--t3);letter-spacing:.1em;text-transform:uppercase}
+.dhaz{position:absolute;top:148px;left:14px;right:14px;padding:10px 15px;border-radius:12px;display:none;align-items:center;gap:10px;z-index:32;backdrop-filter:blur(10px)}
 .dhaz.show{display:flex;animation:adrop .3s ease}
-.dcoach{position:absolute;bottom:163px;left:14px;right:14px;background:rgba(16,33,52,.97);border:1.5px solid var(--info);border-radius:28px;padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 0 40px rgba(0,176,255,.15)}
+.dcoach{position:absolute;bottom:163px;left:14px;right:14px;background:rgba(13,21,32,.97);border:1.5px solid var(--info);border-radius:26px;padding:13px 17px;display:flex;align-items:center;gap:12px;box-shadow:0 0 40px rgba(0,176,255,.12);backdrop-filter:blur(16px)}
 .dmets{position:absolute;bottom:76px;left:0;right:0;display:flex;gap:1px;background:var(--b1)}
-.dmet{flex:1;background:var(--panel);padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.dmv{font-family:var(--fd);font-size:17px;font-weight:700;line-height:1}
+.dmet{flex:1;background:var(--panel);padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.dmv{font-family:var(--fd);font-size:16px;font-weight:700;line-height:1}
 .dml{font-size:9px;color:var(--t3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em}
-.dbot{position:absolute;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--b2);display:flex;align-items:center;padding:0 18px;height:72px;gap:10px;pointer-events:all;padding-bottom:env(safe-area-inset-bottom,0px)}
-.bstop{flex:1;height:44px;background:rgba(255,61,0,.15);border:1px solid rgba(255,61,0,.4);border-radius:14px;font-family:var(--fd);font-size:15px;font-weight:700;color:var(--danger);cursor:pointer}
-.bpark{height:44px;padding:0 14px;background:rgba(170,0,255,.12);border:1px solid rgba(170,0,255,.35);border-radius:14px;font-family:var(--fd);font-size:13px;font-weight:700;color:var(--perf);cursor:pointer}
-.bmic{width:50px;height:50px;border-radius:50%;background:var(--panel2);border:2px solid var(--info);box-shadow:0 0 16px var(--ig);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer}
+.dbot{position:absolute;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--b2);display:flex;align-items:center;padding:0 16px;height:72px;gap:10px;pointer-events:all;padding-bottom:env(safe-area-inset-bottom,0px)}
+.bstop{flex:1;height:44px;background:rgba(255,61,0,.12);border:1px solid rgba(255,61,0,.35);border-radius:12px;font-family:var(--fd);font-size:15px;font-weight:700;color:var(--danger);cursor:pointer}
+.bpark{height:44px;padding:0 14px;background:rgba(170,0,255,.1);border:1px solid rgba(170,0,255,.3);border-radius:12px;font-family:var(--fd);font-size:13px;font-weight:700;color:var(--perf);cursor:pointer}
+.bmic{width:48px;height:48px;border-radius:50%;background:var(--panel2);border:2px solid var(--info);box-shadow:0 0 14px var(--ig);display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer}
 
 /* SCORE */
 #score{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;overflow-y:auto;padding-bottom:40px}
 #score.on{display:block;animation:sup .4s cubic-bezier(.34,1.2,.64,1)}
 @keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.sc-head{padding:52px 20px 24px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(170,0,255,.1) 0%,transparent 65%);position:relative}
+.sc-head{padding:52px 20px 24px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(170,0,255,.12) 0%,transparent 65%);position:relative}
 .sc-back{position:absolute;top:16px;left:16px;width:40px;height:40px;border-radius:50%;background:var(--panel2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
 .sc-rw{position:relative;width:160px;height:160px;margin:0 auto 14px}
 .sc-ri{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center}
-.sc-num{font-family:var(--fd);font-size:54px;font-weight:900;line-height:1;letter-spacing:-2px;background:linear-gradient(135deg,#AA00FF,#ff6ef7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sc-num{font-family:var(--fd);font-size:52px;font-weight:900;line-height:1;letter-spacing:-2px;background:linear-gradient(135deg,#AA00FF,#ff6ef7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .sc-gr{font-family:var(--fd);font-size:20px;font-weight:700;background:linear-gradient(135deg,#00C853,#00ff87);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.sc-tag{font-family:var(--fd);font-size:26px;font-weight:800;color:var(--t2);margin-bottom:4px}
+.sc-tag{font-family:var(--fd);font-size:26px;font-weight:800;color:var(--t2);margin-bottom:4px;letter-spacing:.02em}
 .sc-meta{font-size:12px;color:var(--t3)}
 .sec{padding:0 16px;margin-bottom:18px}
 .sett{font-family:var(--fd);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--t3);margin-bottom:10px}
-.card{background:var(--panel);border:1px solid var(--b2);border-radius:20px;overflow:hidden}
+.card{background:var(--panel);border:1px solid var(--b2);border-radius:18px;overflow:hidden}
 .sgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--b1)}
-.sgi{background:var(--panel);padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
-.sgio{font-size:18px}.sgiv{font-family:var(--fd);font-size:18px;font-weight:800}
+.sgi{background:var(--panel);padding:13px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
+.sgio{font-size:17px}.sgiv{font-family:var(--fd);font-size:17px;font-weight:800}
 .sgil{font-size:9px;color:var(--t3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em}
-.birow{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--b1)}
+.birow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--b1)}
 .birow:last-child{border-bottom:none}
-.biic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.binm{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:5px}
-.bibg{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;flex:1}
-.bif{height:100%;border-radius:3px;transition:width 1.6s cubic-bezier(.4,0,.2,1)}
-.bisc{font-family:var(--fd);font-size:20px;font-weight:800;width:36px;text-align:right;flex-shrink:0}
-.cfcard{background:rgba(0,176,255,.05);border:1px solid rgba(0,176,255,.2);border-radius:20px;padding:16px}
+.biic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.binm{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:4px}
+.bibg{height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;flex:1}
+.bif{height:100%;border-radius:2px;transition:width 1.8s cubic-bezier(.4,0,.2,1)}
+.bisc{font-family:var(--fd);font-size:19px;font-weight:800;width:34px;text-align:right;flex-shrink:0}
+
+/* BADGES */
+.badges-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.badge-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;background:var(--panel2);border:1px solid var(--b1);border-radius:12px;position:relative}
+.badge-item.earned{border-color:rgba(0,200,83,.3);background:rgba(0,200,83,.05)}
+.badge-item.locked{opacity:.4;filter:grayscale(1)}
+.badge-ico{font-size:24px}
+.badge-name{font-size:9px;font-family:var(--fm);color:var(--t3);text-align:center;letter-spacing:.05em;text-transform:uppercase}
+.badge-item.earned .badge-name{color:var(--safe)}
+.badge-new{position:absolute;top:-4px;right:-4px;background:var(--danger);width:16px;height:16px;border-radius:50%;font-size:8px;font-family:var(--fm);font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff}
+
+/* STREAK */
+.streak-card{background:linear-gradient(135deg,rgba(170,0,255,.12),rgba(0,176,255,.08));border:1px solid rgba(170,0,255,.2);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px}
+.streak-num{font-family:var(--fd);font-size:48px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--perf),#ff6ef7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.streak-info{flex:1}
+.streak-title{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--t1);letter-spacing:.03em}
+.streak-sub{font-size:12px;color:var(--t3);margin-top:2px}
+
+/* LEVEL BAR */
+.level-card{background:var(--panel);border:1px solid var(--b2);border-radius:18px;padding:16px}
+.level-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.level-name{font-family:var(--fd);font-size:18px;font-weight:800;letter-spacing:.04em}
+.level-xp{font-family:var(--fm);font-size:11px;color:var(--t3)}
+.level-bar-bg{height:8px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
+.level-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--safe),#00e5ff);transition:width 1.5s ease}
+.level-next{font-size:11px;color:var(--t3);margin-top:6px;display:flex;justify-content:space-between}
+
+.cfcard{background:rgba(0,176,255,.04);border:1px solid rgba(0,176,255,.18);border-radius:18px;padding:15px}
 .cfh{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.cfav{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#00b0ff,#0066cc);display:flex;align-items:center;justify-content:center;font-size:16px}
+.cfav{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#00b0ff,#0055cc);display:flex;align-items:center;justify-content:center;font-size:15px}
 .cft{font-size:13px;color:var(--t2);line-height:1.7;font-style:italic}
-.cftags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.ctg{padding:4px 10px;border-radius:20px;font-size:10px;font-family:var(--fm)}
-.tgg{background:rgba(0,200,83,.1);color:var(--safe);border:1px solid rgba(0,200,83,.25)}
-.tgw{background:rgba(255,214,0,.08);color:var(--warn);border:1px solid rgba(255,214,0,.2)}
-.sc-acts{display:flex;gap:10px;padding:0 16px}
-.bperf{flex:1;height:48px;background:rgba(170,0,255,.12);border:1px solid rgba(170,0,255,.35);border-radius:14px;font-family:var(--fd);font-size:15px;font-weight:700;color:var(--perf);cursor:pointer}
-.bgreen{flex:1;height:48px;background:var(--safe);border:none;border-radius:14px;font-family:var(--fd);font-size:15px;font-weight:700;color:#000;cursor:pointer}
+.cftags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.ctg{padding:3px 9px;border-radius:16px;font-size:10px;font-family:var(--fm)}
+.tgg{background:rgba(0,200,83,.1);color:var(--safe);border:1px solid rgba(0,200,83,.22)}
+.tgw{background:rgba(255,214,0,.07);color:var(--warn);border:1px solid rgba(255,214,0,.18)}
+.sc-acts{display:flex;gap:10px;padding:0 16px;margin-top:4px}
+.bperf{flex:1;height:48px;background:rgba(170,0,255,.1);border:1px solid rgba(170,0,255,.3);border-radius:12px;font-family:var(--fd);font-size:15px;font-weight:700;color:var(--perf);cursor:pointer}
+.bgreen{flex:1;height:48px;background:var(--safe);border:none;border-radius:12px;font-family:var(--fd);font-size:15px;font-weight:700;color:#000;cursor:pointer}
 
 /* PARKING */
-#pkm{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:none;align-items:flex-end}
+#pkm{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;align-items:flex-end}
 #pkm.on{display:flex}
-.pkb{width:100%;background:var(--panel);border-radius:28px 28px 0 0;border-top:1px solid var(--b2);padding:20px 20px 40px;animation:sup .35s cubic-bezier(.34,1.2,.64,1)}
-.pkh{width:40px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:0 auto 20px}
-.pkt{font-family:var(--fd);font-size:22px;font-weight:800;margin-bottom:4px}
-.pks{font-size:12px;color:var(--t3);margin-bottom:16px}
-.pki{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--panel2);border:1px solid var(--b1);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
+.pkb{width:100%;background:var(--panel);border-radius:26px 26px 0 0;border-top:1px solid var(--b2);padding:20px 20px 40px;animation:sup .35s cubic-bezier(.34,1.2,.64,1)}
+.pkh{width:38px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:0 auto 18px}
+.pkt{font-family:var(--fd);font-size:21px;font-weight:800;margin-bottom:3px}
+.pks{font-size:12px;color:var(--t3);margin-bottom:14px}
+.pki{display:flex;align-items:center;gap:13px;padding:13px 15px;background:var(--panel2);border:1px solid var(--b1);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
 .pki:hover{border-color:rgba(170,0,255,.3)}
-.pkii{width:40px;height:40px;border-radius:10px;background:rgba(170,0,255,.1);border:1px solid rgba(170,0,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.pkii{width:38px;height:38px;border-radius:9px;background:rgba(170,0,255,.1);border:1px solid rgba(170,0,255,.18);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
 .pkin{font-size:14px;font-weight:500;color:var(--t1)}
-.pkim{font-size:11px;color:var(--t3);margin-top:2px}
-.pkid{font-family:var(--fd);font-size:18px;font-weight:700;color:var(--perf);margin-left:auto;flex-shrink:0}
-.pkc{width:100%;height:44px;background:var(--panel2);border:1px solid var(--b2);border-radius:14px;font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t3);cursor:pointer;margin-top:8px}
+.pkim{font-size:11px;color:var(--t3);margin-top:1px}
+.pkid{font-family:var(--fd);font-size:17px;font-weight:700;color:var(--perf);margin-left:auto;flex-shrink:0}
+.pkc{width:100%;height:44px;background:var(--panel2);border:1px solid var(--b2);border-radius:12px;font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t3);cursor:pointer;margin-top:8px}
 
 .gs{background:linear-gradient(135deg,#00C853,#00ff87);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .gp{background:linear-gradient(135deg,#AA00FF,#ff6ef7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -230,12 +278,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
 </style>
 </head>
 <body>
-
 <div id="map"></div>
 
 <div id="app">
+  <!-- TOP -->
   <div class="topbar">
-    <div class="logo">Coach<span>Drive</span></div>
+    <div class="logo">Coach<span>Drive</span><span class="logo-badge">LIVE</span></div>
     <div class="sw">
       <div class="sbar" id="sbar-el">
         <span style="font-size:14px;flex-shrink:0">🔍</span>
@@ -251,21 +299,57 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
     <div class="livdot"></div>
   </div>
 
+  <!-- LIVE SCORE RING -->
+  <div id="live-score">
+    <div class="ls-ring">
+      <svg width="68" height="68" viewBox="0 0 68 68">
+        <circle fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="5" cx="34" cy="34" r="29"/>
+        <circle id="ls-arc" fill="none" stroke-width="5" stroke-linecap="round" cx="34" cy="34" r="29"
+          stroke="url(#lsg)" stroke-dasharray="182.2" stroke-dashoffset="182.2"
+          style="transform:rotate(-90deg);transform-origin:34px 34px"/>
+        <defs><linearGradient id="lsg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#AA00FF"/><stop offset="100%" stop-color="#00C853"/>
+        </linearGradient></defs>
+      </svg>
+      <div class="ls-inner">
+        <div class="ls-grade gs" id="ls-grade">A</div>
+        <div class="ls-label">STIL</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEATHER -->
+  <div id="wcard">
+    <span id="w-ico" style="font-size:22px">🌤</span>
+    <div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <div class="wt" id="w-temp">--°</div>
+        <div><div class="wc" id="w-city">—</div><div class="wd" id="w-desc">...</div></div>
+      </div>
+      <div class="wbadge bdry" id="w-road">Normal</div>
+    </div>
+  </div>
+
+  <!-- ROUTE PILLS -->
   <div class="rpills" id="rpills">
     <div class="rpill active" id="pill-fastest" onclick="setMode('fastest')">
-      <span class="rpill-ico">⚡</span><span class="rpill-lbl">Timp</span>
+      <span class="rpill-ico">⚡</span><span class="rpill-lbl">Rapid</span>
       <span class="rpill-val" id="pf-val">—</span>
+      <span class="rpill-diff" id="pf-diff">—</span>
     </div>
     <div class="rpill" id="pill-shortest" onclick="setMode('shortest')">
-      <span class="rpill-ico">📏</span><span class="rpill-lbl">Km</span>
+      <span class="rpill-ico">📏</span><span class="rpill-lbl">Scurt</span>
       <span class="rpill-val" id="ps-val">—</span>
+      <span class="rpill-diff" id="ps-diff">—</span>
     </div>
     <div class="rpill" id="pill-eco" onclick="setMode('eco')">
       <span class="rpill-ico">🌿</span><span class="rpill-lbl">Eco</span>
       <span class="rpill-val" id="pe-val">—</span>
+      <span class="rpill-diff" id="pe-diff">—</span>
     </div>
   </div>
 
+  <!-- DEST CARD -->
   <div id="dc">
     <div class="dc-pin">📍</div>
     <div style="flex:1;min-width:0">
@@ -275,17 +359,23 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
         <div><div class="dc-sv" id="dc-km">—</div><div class="dc-sl">km</div></div>
         <div><div class="dc-sv" id="dc-min">—</div><div class="dc-sl">min</div></div>
         <div><div class="dc-sv" id="dc-L">—</div><div class="dc-sl">L est.</div></div>
+        <div class="dc-diff-badge" id="dc-diff-badge">—</div>
       </div>
     </div>
     <div class="dc-x" onclick="clearDest()">✕</div>
   </div>
 
+  <!-- ALERT -->
   <div id="alert" onclick="hideAlert()">
-    <span id="a-ico" style="font-size:20px">ℹ️</span>
-    <span id="alert-txt" style="flex:1;font-size:13px;font-weight:500"></span>
-    <span style="font-size:14px;opacity:.5">✕</span>
+    <span id="a-ico" style="font-size:19px">ℹ️</span>
+    <span id="alert-txt" style="flex:1;font-size:12px;font-weight:500"></span>
+    <span style="font-size:13px;opacity:.4">✕</span>
   </div>
 
+  <!-- COMMUNITY FEED -->
+  <div id="comm-feed"></div>
+
+  <!-- TURN BAR -->
   <div id="rbar">
     <div class="rba" id="rba">↑</div>
     <div class="rbi">
@@ -295,32 +385,17 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
     <div><div class="rbe" id="rbe">—</div><div class="rbel">ETA</div></div>
   </div>
 
-  <div id="wcard">
-    <span id="w-ico" style="font-size:24px">🌤</span>
-    <div>
-      <div style="display:flex;align-items:baseline;gap:6px">
-        <div class="wt" id="w-temp">--°</div>
-        <div><div class="wc" id="w-city">—</div><div class="wd" id="w-desc">se încarcă...</div></div>
-      </div>
-      <div class="wbadge bdry" id="w-road">Carosabil normal</div>
-    </div>
-  </div>
-
-  <div id="gbub">
-    <div class="gspd" id="g-spd">0</div>
-    <div class="gunit">km/h</div>
-    <div class="gacc" id="g-acc">GPS</div>
-  </div>
-
+  <!-- COACH -->
   <div class="coach">
     <div class="cav">🧑‍🏫</div>
     <div style="flex:1;min-width:0">
       <div class="clb">CLAUDIU DAVID · COACH</div>
-      <div class="cmg" id="coach-msg">Se inițializează harta și GPS-ul...</div>
+      <div class="cmg" id="coach-msg">Se inițializează harta...</div>
     </div>
     <div class="cwv"><div class="cwb"></div><div class="cwb"></div><div class="cwb"></div><div class="cwb"></div></div>
   </div>
 
+  <!-- STATUS BAR -->
   <div id="sbar">
     <div class="sbi"><div class="sbv gs" id="sb-s">A</div><div class="sbl">Stil</div></div>
     <div class="sbi"><div class="sbv gi" id="sb-k">0 km</div><div class="sbl">Parcurs</div></div>
@@ -328,17 +403,19 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
     <div class="sbi"><div class="sbv" style="color:var(--t2)" id="sb-t">0 min</div><div class="sbl">Durată</div></div>
   </div>
 
+  <!-- FAB -->
   <div class="fab">
     <button class="fabt" onclick="startDrive()">
-      <span style="font-size:24px">▶</span>
+      <span style="font-size:23px">▶</span>
       <span class="fablt">START</span>
     </button>
   </div>
 
+  <!-- BOTTOM NAV -->
   <div class="botnav">
     <button class="ni active" onclick="setNav(this)"><span class="ni-i">🗺</span><span class="ni-l">Hartă</span></button>
     <button class="ni" onclick="setNav(this);startDrive()"><span class="ni-i">🚗</span><span class="ni-l">Conduc</span></button>
-    <button class="ni" onclick="setNav(this);openScore()"><span class="ni-i">🏆</span><span class="ni-l">Scor</span></button>
+    <button class="ni" onclick="setNav(this);document.getElementById('score').classList.add('on')"><span class="ni-i">🏆</span><span class="ni-l">Scor</span><span class="ni-badge" id="score-badge">1</span></button>
     <button class="ni" onclick="setNav(this);openParking()"><span class="ni-i">🅿</span><span class="ni-l">Parcare</span></button>
   </div>
 </div>
@@ -356,29 +433,36 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
       <div class="dnd" id="dh-nd">GPS activ</div>
     </div>
     <div class="dright">
+      <div class="d-live-score">
+        <div class="dls-grade gs" id="dh-grade">A</div>
+        <div class="dls-lbl">STIL LIVE</div>
+      </div>
       <div><div class="deta" id="dh-dur">0:00</div><div class="detal">DURATĂ</div></div>
-      <div style="font-size:11px;color:var(--warn)" id="dh-wx">⌛ meteo</div>
-      <div style="font-size:11px;color:var(--safe)" id="dh-dest">—</div>
+      <div style="font-size:11px;color:var(--warn)" id="dh-wx">⌛</div>
     </div>
   </div>
+
   <div class="dhaz aw" id="dhaz">
-    <span id="dhaz-i" style="font-size:20px">⚠️</span>
-    <span id="dhaz-t" style="font-size:13px;font-weight:600;flex:1"></span>
+    <span id="dhaz-i" style="font-size:19px">⚠️</span>
+    <span id="dhaz-t" style="font-size:12px;font-weight:600;flex:1"></span>
   </div>
+
   <div class="dcoach">
     <div class="cav">🧑‍🏫</div>
     <div style="flex:1;min-width:0">
       <div class="clb">CLAUDIU DAVID · LIVE</div>
-      <div class="cmg" id="dh-coach">Sesiune activă — monitorizez condițiile...</div>
+      <div class="cmg" id="dh-coach">Sesiune activă...</div>
     </div>
     <div class="cwv"><div class="cwb"></div><div class="cwb"></div><div class="cwb"></div><div class="cwb"></div></div>
   </div>
+
   <div class="dmets">
     <div class="dmet"><div class="dmv gs" id="dm-s">A</div><div class="dml">Stil</div></div>
     <div class="dmet"><div class="dmv gi" id="dm-k">0 km</div><div class="dml">Parcurs</div></div>
     <div class="dmet"><div class="dmv gw" id="dm-b">0</div><div class="dml">Frânări</div></div>
     <div class="dmet"><div class="dmv" style="color:var(--t2)" id="dm-r">— km</div><div class="dml">Rămas</div></div>
   </div>
+
   <div class="dbot">
     <button class="bstop" onclick="stopDrive()">⏹ OPRIRE</button>
     <button class="bpark" onclick="openParking()">🅿 Parcare</button>
@@ -386,11 +470,11 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
   </div>
 </div>
 
-<!-- SCORE -->
+<!-- SCORE + GAMIFICATION -->
 <div id="score">
   <div class="sc-head">
-    <div class="sc-back" onclick="document.getElementById('score').classList.remove('on')">←</div>
-    <div style="font-family:var(--fm);font-size:10px;color:var(--t3);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px" id="sc-lbl">Sesiune</div>
+    <div class="sc-back" onclick="document.getElementById('score').classList.remove('on');document.getElementById('score-badge').classList.remove('show')">←</div>
+    <div style="font-family:var(--fm);font-size:10px;color:var(--t3);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px" id="sc-lbl">Ultima sesiune</div>
     <div class="sc-rw">
       <svg style="transform:rotate(-90deg)" width="160" height="160" viewBox="0 0 160 160">
         <circle fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="8" cx="80" cy="80" r="70"/>
@@ -408,8 +492,50 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
     <div class="sc-tag" id="sc-tag">Completează o cursă!</div>
     <div class="sc-meta" id="sc-meta">Pornește sesiunea pentru scor</div>
   </div>
+
+  <!-- STREAK + LEVEL -->
   <div class="sec">
-    <div class="sett">Statistici</div>
+    <div class="sett">Progres & Nivel</div>
+    <div class="streak-card" style="margin-bottom:10px">
+      <div class="streak-num" id="streak-num">1</div>
+      <div class="streak-info">
+        <div class="streak-title">🔥 Streak activ</div>
+        <div class="streak-sub" id="streak-sub">Zi consecutivă de condus</div>
+      </div>
+    </div>
+    <div class="level-card">
+      <div class="level-header">
+        <div class="level-name gp" id="level-name">BEGINNER</div>
+        <div class="level-xp" id="level-xp">0 / 500 XP</div>
+      </div>
+      <div class="level-bar-bg">
+        <div class="level-bar-fill" id="level-bar" style="width:0%"></div>
+      </div>
+      <div class="level-next">
+        <span id="level-prev">—</span>
+        <span id="level-next-lbl">Următor: PRO</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BADGES -->
+  <div class="sec">
+    <div class="sett">Badges câștigate</div>
+    <div class="badges-grid" id="badges-grid">
+      <div class="badge-item locked"><div class="badge-ico">🛡</div><div class="badge-name">Siguranță</div></div>
+      <div class="badge-item locked"><div class="badge-ico">⚡</div><div class="badge-name">Speed Pro</div></div>
+      <div class="badge-item locked"><div class="badge-ico">🌿</div><div class="badge-name">Eco Driver</div></div>
+      <div class="badge-item locked"><div class="badge-ico">🏆</div><div class="badge-name">Perfect Run</div></div>
+      <div class="badge-item locked"><div class="badge-ico">🔥</div><div class="badge-name">7 Zile</div></div>
+      <div class="badge-item locked"><div class="badge-ico">🌍</div><div class="badge-name">Explorer</div></div>
+      <div class="badge-item locked"><div class="badge-ico">🎯</div><div class="badge-name">Precision</div></div>
+      <div class="badge-item locked"><div class="badge-ico">👑</div><div class="badge-name">Expert</div></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="sec">
+    <div class="sett">Statistici sesiune</div>
     <div class="card">
       <div class="sgrid">
         <div class="sgi"><span class="sgio">🏁</span><div class="sgiv gs" id="ss-km">0</div><div class="sgil">km</div></div>
@@ -421,31 +547,36 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
       </div>
     </div>
   </div>
+
+  <!-- SCORE BREAKDOWN -->
   <div class="sec">
     <div class="sett">Detalii scor</div>
     <div class="card">
       <div class="birow"><div class="biic" style="background:rgba(0,200,83,.1)">🛡</div><div style="flex:1"><div class="binm">Siguranță</div><div class="bibg"><div class="bif" id="b-s" style="width:0%;background:linear-gradient(90deg,#00C853,#00ff87)"></div></div></div><div class="bisc gs" id="sc-s">--</div></div>
       <div class="birow"><div class="biic" style="background:rgba(170,0,255,.1)">⚡</div><div style="flex:1"><div class="binm">Performanță</div><div class="bibg"><div class="bif" id="b-p" style="width:0%;background:linear-gradient(90deg,#AA00FF,#ff6ef7)"></div></div></div><div class="bisc gp" id="sc-p">--</div></div>
       <div class="birow"><div class="biic" style="background:rgba(0,176,255,.1)">🧠</div><div style="flex:1"><div class="binm">Anticipare</div><div class="bibg"><div class="bif" id="b-a" style="width:0%;background:linear-gradient(90deg,#00B0FF,#00e5ff)"></div></div></div><div class="bisc gi" id="sc-a">--</div></div>
-      <div class="birow"><div class="biic" style="background:rgba(255,214,0,.08)">🛞</div><div style="flex:1"><div class="binm">Frânare</div><div class="bibg"><div class="bif" id="b-b" style="width:0%;background:linear-gradient(90deg,#FFD600,#ff9800)"></div></div></div><div class="bisc gw" id="sc-b">--</div></div>
-      <div class="birow"><div class="biic" style="background:rgba(0,200,83,.08)">🌿</div><div style="flex:1"><div class="binm">Eco</div><div class="bibg"><div class="bif" id="b-e" style="width:0%;background:linear-gradient(90deg,#00C853,#69f0ae)"></div></div></div><div class="bisc gs" id="sc-e">--</div></div>
+      <div class="birow"><div class="biic" style="background:rgba(255,214,0,.08)">🛞</div><div style="flex:1"><div class="binm">Frânare lină</div><div class="bibg"><div class="bif" id="b-b" style="width:0%;background:linear-gradient(90deg,#FFD600,#ff9800)"></div></div></div><div class="bisc gw" id="sc-b">--</div></div>
+      <div class="birow"><div class="biic" style="background:rgba(0,200,83,.08)">🌿</div><div style="flex:1"><div class="binm">Eco Drive</div><div class="bibg"><div class="bif" id="b-e" style="width:0%;background:linear-gradient(90deg,#00C853,#69f0ae)"></div></div></div><div class="bisc gs" id="sc-e">--</div></div>
     </div>
   </div>
+
+  <!-- FEEDBACK -->
   <div class="sec">
     <div class="sett">Feedback Coach</div>
     <div class="cfcard">
       <div class="cfh">
         <div class="cfav">🧑‍🏫</div>
-        <div><div style="font-family:var(--fm);font-size:9px;color:var(--info);letter-spacing:.12em">CLAUDIU DAVID · COACH</div>
-        <div style="font-size:13px;font-weight:600;color:var(--t1)">Analiză sesiune</div></div>
+        <div><div style="font-family:var(--fm);font-size:9px;color:var(--info);letter-spacing:.12em">CLAUDIU DAVID</div>
+        <div style="font-size:13px;font-weight:600;color:var(--t1)">Analiză personalizată</div></div>
       </div>
-      <div class="cft" id="cf-txt">Completează o cursă pentru feedback personalizat...</div>
+      <div class="cft" id="cf-txt">Completează o cursă pentru feedback...</div>
       <div class="cftags" id="cf-tags"></div>
     </div>
   </div>
+
   <div class="sc-acts">
-    <button class="bperf">📤 Distribuie</button>
-    <button class="bgreen" onclick="document.getElementById('score').classList.remove('on')">▶ Cursă nouă</button>
+    <button class="bperf" onclick="shareScore()">📤 Distribuie</button>
+    <button class="bgreen" onclick="document.getElementById('score').classList.remove('on');document.getElementById('score-badge').classList.remove('show')">▶ Cursă nouă</button>
   </div>
 </div>
 
@@ -460,575 +591,728 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
   </div>
 </div>
 
-<!-- Leaflet JS — încărcat o singură dată, după DOM -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
-// ═══════════════════════════
+// ═══════════════════════════════════════
+// MAPBOX TOKEN
+// ═══════════════════════════════════════
+mapboxgl.accessToken = 'pk.eyJ1IjoiYWltLW1hcmtldGluZyIsImEiOiJjbXB0emw0dmcwdHhxMnJzZXBiODlsNGVzIn0.5zXZqXICBsSJnR9N1dWrmg';
+
+// ═══════════════════════════════════════
 // STATE
-// ═══════════════════════════
+// ═══════════════════════════════════════
 const S = {
   lat:null, lon:null, speed:0, accuracy:null,
   speedHist:[], brakingEvt:0, overSpeedEvt:0,
   driveKm:0, lastPos:null, sessionMin:0,
-  driving:false, coachBusy:false, gpsN:0,
-  weather:null, sessionTimer:null, hazardTimer:null, alertTimer:null,
+  driving:false, gpsN:0,
+  weather:null, sessionTimer:null, hazardTimer:null, alertTimer:null, commTimer:null,
   map:null, userMarker:null, destMarker:null, routeLayer:null,
   dest:null,
   routes:{fastest:null,shortest:null,eco:null},
   mode:'fastest', steps:[], stepIdx:0,
   totalKm:0, totalMin:0, _arrived:false,
+  // gamification
+  xp:parseInt(localStorage.getItem('cd_xp')||'0'),
+  streak:parseInt(localStorage.getItem('cd_streak')||'1'),
+  badges:JSON.parse(localStorage.getItem('cd_badges')||'[]'),
+  liveScore:100,
 };
 
-// ═══════════════════════════
-// INIT după ce Leaflet e gata
-// ═══════════════════════════
-window.addEventListener('load', function() {
-  // Mic delay să se termine toate scripturile
-  setTimeout(function() {
-    initMap();
-    initGPS();
-    fetchWeatherByIP();
-  }, 300);
+// ═══════════════════════════════════════
+// MAP — Mapbox GL JS
+// ═══════════════════════════════════════
+window.addEventListener('load', function(){
+  setTimeout(initMap, 100);
 });
 
-// ═══════════════════════════
-// MAP
-// ═══════════════════════════
-function initMap() {
-  if (typeof L === 'undefined') { setTimeout(initMap, 200); return; }
-
-  S.map = L.map('map', {
-    zoomControl: false,
+function initMap(){
+  S.map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/navigation-night-v1', // Exact ca Waze night
+    center: [26.10, 44.43],
+    zoom: 13,
     attributionControl: false,
-    preferCanvas: true,
-    tap: true,
-  }).setView([44.43, 26.10], 13);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    subdomains: 'abc',
-    crossOrigin: true,
-  }).addTo(S.map);
-
-  var icon = L.divIcon({
-    html: '<div style="width:18px;height:18px;border-radius:50%;background:#00B0FF;border:3px solid #fff;box-shadow:0 0 0 5px rgba(0,176,255,.25),0 2px 8px rgba(0,0,0,.4)"></div>',
-    iconSize: [18,18], iconAnchor: [9,9], className: ''
+    logoPosition: 'bottom-left',
   });
-  S.userMarker = L.marker([44.43, 26.10], {icon: icon, zIndexOffset: 1000}).addTo(S.map);
 
-  setMsg('Hartă încărcată ✓ · Se detectează locația GPS...');
+  S.map.on('load', function(){
+    // Add traffic layer
+    S.map.addSource('mapbox-traffic', {
+      type: 'vector',
+      url: 'mapbox://mapbox.mapbox-traffic-v1'
+    });
+    S.map.addLayer({
+      id: 'traffic',
+      type: 'line',
+      source: 'mapbox-traffic',
+      'source-layer': 'traffic',
+      paint: {
+        'line-width': 3,
+        'line-color': [
+          'match',['get','congestion'],
+          'low','#00C853',
+          'moderate','#FFD600',
+          'heavy','#FF3D00',
+          'severe','#AA00FF',
+          '#00C853'
+        ]
+      }
+    });
+    setMsg('Hartă Mapbox activă ✓ · Se detectează locația GPS...');
+    initGPS();
+    fetchWeatherByIP();
+  });
+
+  // User marker — pulsing dot
+  const el = document.createElement('div');
+  el.innerHTML = `
+    <div style="position:relative;width:24px;height:24px">
+      <div style="position:absolute;inset:0;border-radius:50%;background:rgba(0,176,255,.3);animation:pulse 2s ease-out infinite"></div>
+      <div style="position:absolute;top:3px;left:3px;right:3px;bottom:3px;border-radius:50%;background:#00B0FF;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>
+    </div>
+    <style>@keyframes pulse{0%{transform:scale(1);opacity:.6}100%{transform:scale(2.5);opacity:0}}</style>
+  `;
+  el.style.cssText = 'width:24px;height:24px;cursor:pointer';
+  S.userMarker = new mapboxgl.Marker({element:el, anchor:'center'})
+    .setLngLat([26.10, 44.43])
+    .addTo(S.map);
 }
 
-// ═══════════════════════════
+function moveMap(lat, lon, zoom){
+  if(!S.map) return;
+  S.map.easeTo({center:[lon, lat], zoom: zoom||S.map.getZoom(), duration:800});
+  S.userMarker.setLngLat([lon, lat]);
+}
+
+// ═══════════════════════════════════════
 // GPS
-// ═══════════════════════════
-function initGPS() {
-  if (!navigator.geolocation) { setMsg('GPS indisponibil în acest browser.'); return; }
-  navigator.geolocation.getCurrentPosition(onGPS, onGPSErr, {enableHighAccuracy:true, timeout:10000});
-  navigator.geolocation.watchPosition(onGPS, onGPSErr, {enableHighAccuracy:true, maximumAge:2000, timeout:15000});
+// ═══════════════════════════════════════
+function initGPS(){
+  if(!navigator.geolocation){ setMsg('GPS indisponibil.'); return; }
+  navigator.geolocation.getCurrentPosition(onGPS, onGPSErr, {enableHighAccuracy:true,timeout:10000});
+  navigator.geolocation.watchPosition(onGPS, onGPSErr, {enableHighAccuracy:true,maximumAge:2000,timeout:15000});
 }
 
-function onGPS(pos) {
-  var lat = pos.coords.latitude, lon = pos.coords.longitude;
-  var spd = pos.coords.speed, acc = pos.coords.accuracy;
-  S.lat = lat; S.lon = lon; S.accuracy = acc;
-  var kmh = spd ? Math.round(spd * 3.6) : 0;
-  S.speed = kmh;
+function onGPS(pos){
+  const {latitude:lat,longitude:lon,speed,accuracy} = pos.coords;
+  S.lat=lat; S.lon=lon; S.accuracy=accuracy;
+  const kmh = speed ? Math.round(speed*3.6) : 0;
+  S.speed=kmh;
   S.speedHist.push(kmh);
-  if (S.speedHist.length > 120) S.speedHist.shift();
+  if(S.speedHist.length>120) S.speedHist.shift();
 
   // Speed UI
-  var c = kmh > 90 ? '#FF3D00' : kmh > 70 ? '#FFD600' : '#00C853';
-  document.getElementById('g-spd').textContent = kmh;
-  document.getElementById('g-spd').style.color = c;
-  document.getElementById('g-acc').textContent = '±' + Math.round(acc) + 'm';
+  const c = kmh>90?'#FF3D00':kmh>70?'#FFD600':'#00C853';
   document.getElementById('dh-spd').textContent = kmh;
   document.getElementById('dh-spd').style.webkitTextFillColor = kmh>90?'#FF3D00':kmh>70?'#FFD600':'';
 
-  // Move map + marker
-  if (S.map && S.userMarker) {
-    S.map.setView([lat, lon], S.dest ? S.map.getZoom() : 16);
-    S.userMarker.setLatLng([lat, lon]);
-  }
+  moveMap(lat, lon, S.dest ? undefined : 16);
 
   // Distance
-  if (S.driving && S.lastPos) {
-    var d = hav(S.lastPos.lat, S.lastPos.lon, lat, lon);
-    if (d < 0.5) {
-      S.driveKm += d;
-      var km = S.driveKm.toFixed(1) + ' km';
-      document.getElementById('sb-k').textContent = km;
-      document.getElementById('dm-k').textContent = km;
+  if(S.driving && S.lastPos){
+    const d = hav(S.lastPos.lat,S.lastPos.lon,lat,lon);
+    if(d<0.5){
+      S.driveKm+=d;
+      const km=S.driveKm.toFixed(1)+' km';
+      document.getElementById('sb-k').textContent=km;
+      document.getElementById('dm-k').textContent=km;
     }
   }
-  S.lastPos = {lat:lat, lon:lon};
+  S.lastPos={lat,lon};
 
   // Braking
-  if (S.driving && S.speedHist.length >= 4) {
-    var prev = S.speedHist[S.speedHist.length-4];
-    if (prev - kmh > 20) {
+  if(S.driving && S.speedHist.length>=4){
+    const prev=S.speedHist[S.speedHist.length-4];
+    if(prev-kmh>20){
       S.brakingEvt++;
-      document.getElementById('sb-b').textContent = S.brakingEvt;
-      document.getElementById('dm-b').textContent = S.brakingEvt;
+      document.getElementById('sb-b').textContent=S.brakingEvt;
+      document.getElementById('dm-b').textContent=S.brakingEvt;
     }
   }
 
-  // Remaining + arrival
-  if (S.dest) {
-    var rem = hav(lat, lon, S.dest.lat, S.dest.lon);
-    document.getElementById('dm-r').textContent = rem.toFixed(1) + ' km';
-    document.getElementById('dh-dest').textContent = '📍 ' + S.dest.name.split(',')[0] + ' · ' + rem.toFixed(1) + 'km';
-    if (rem < 0.1 && S.driving && !S._arrived) {
-      S._arrived = true;
-      showAlert('as', '🏁 Ai ajuns! Sesiunea continuă — caută parcare dacă e nevoie.');
-      tts('Ai ajuns la destinație! Sesiunea continuă, caută parcare dacă e nevoie.');
+  // Remaining
+  if(S.dest){
+    const rem=hav(lat,lon,S.dest.lat,S.dest.lon);
+    document.getElementById('dm-r').textContent=rem.toFixed(1)+' km';
+    if(rem<0.1 && S.driving && !S._arrived){
+      S._arrived=true;
+      showAlert('as','🏁 Ai ajuns! Sesiunea continuă — caută parcare dacă e nevoie.');
+      tts('Ai ajuns la destinație! Sesiunea continuă.');
     }
   }
 
-  // Turn step advance
-  if (S.driving && S.steps.length && S.stepIdx < S.steps.length) {
-    var sc2 = S.steps[S.stepIdx] && S.steps[S.stepIdx].maneuver && S.steps[S.stepIdx].maneuver.location;
-    if (sc2 && hav(lat, lon, sc2[1], sc2[0]) < 0.06) { S.stepIdx++; updateTurnBar(); }
+  // Live score update
+  updateLiveScore();
+
+  // Turn advance
+  if(S.driving && S.steps.length && S.stepIdx<S.steps.length){
+    const sc2 = S.steps[S.stepIdx]?.geometry?.coordinates;
+    if(sc2 && hav(lat,lon,sc2[sc2.length-1][1],sc2[sc2.length-1][0])<0.06){
+      S.stepIdx++; updateTurnBar();
+    }
   }
 
   S.gpsN++;
-  if (S.gpsN === 1) { reverseGeo(lat, lon); fetchWeather(lat, lon); }
-  if (S.driving && S.gpsN % 30 === 0) updateCoachMsg();
+  if(S.gpsN===1){ reverseGeo(lat,lon); fetchWeather(lat,lon); }
 }
 
-function onGPSErr(e) {
-  document.getElementById('g-acc').textContent = 'GPS OFF';
-  setMsg('GPS indisponibil · Permite accesul la locație în browser și reîncarcă pagina.');
+function onGPSErr(){ document.getElementById('g-acc') && (document.getElementById('g-acc').textContent='GPS OFF'); }
+
+// ═══════════════════════════════════════
+// LIVE SCORE (calculat continuu)
+// ═══════════════════════════════════════
+function updateLiveScore(){
+  let score = 100;
+  score -= S.brakingEvt * 5;
+  score -= S.overSpeedEvt * 8;
+  if(S.weather && S.weather.prec>0) score += 3; // bonus ploaie
+  score = Math.max(20, Math.min(100, Math.round(score)));
+  S.liveScore = score;
+
+  const grade = score>=95?'S':score>=88?'A+':score>=80?'A':score>=70?'B':score>=60?'C':'D';
+  const color = score>=80?'#00C853':score>=60?'#FFD600':'#FF3D00';
+
+  // Update ring
+  const arc = document.getElementById('ls-arc');
+  if(arc){
+    arc.style.strokeDashoffset = 182.2*(1-score/100);
+    arc.style.stroke = color;
+  }
+  document.getElementById('ls-grade').textContent = grade;
+  document.getElementById('ls-grade').style.webkitTextFillColor = color;
+  document.getElementById('dh-grade').textContent = grade;
+  document.getElementById('dh-grade').style.webkitTextFillColor = color;
+  document.getElementById('sb-s').textContent = grade;
+  document.getElementById('dm-s').textContent = grade;
 }
 
-// ═══════════════════════════
-// SEARCH — Nominatim global
-// ═══════════════════════════
-var searchT = null;
-function onSI(val) {
-  document.getElementById('sx').style.display = val ? 'block' : 'none';
+// ═══════════════════════════════════════
+// SEARCH — Nominatim global (instant)
+// ═══════════════════════════════════════
+let searchT=null;
+function onSI(val){
+  document.getElementById('sx').style.display=val?'block':'none';
   clearTimeout(searchT);
-  var el = document.getElementById('sr');
-  if (val.length < 2) { el.classList.remove('show'); return; }
+  const el=document.getElementById('sr');
+  if(val.length<2){el.classList.remove('show');return;}
   el.classList.add('show');
-  el.innerHTML = '<div class="sr-msg">🔍 Se caută în toată lumea...</div>';
-  searchT = setTimeout(function(){ doSearch(val); }, 450);
+  el.innerHTML='<div class="sr-msg">🔍 Se caută în toată lumea...</div>';
+  searchT=setTimeout(()=>doSearch(val),380);
 }
 
-function doSearch(q) {
-  var el = document.getElementById('sr');
-  var lat = S.lat || 44.43, lon = S.lon || 26.10;
-  fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&limit=8&addressdetails=1&accept-language=ro,en', {
-    headers: {'Accept-Language':'ro,en', 'User-Agent':'CoachDrive/Demo'}
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(data) {
-    if (!data.length) { el.innerHTML = '<div class="sr-msg">Niciun rezultat — încearcă alt termen</div>'; return; }
-    el.innerHTML = '';
-    data.forEach(function(item) {
-      var name = (item.namedetails && item.namedetails.name) || item.display_name.split(',')[0];
-      var addr = item.display_name.split(',').slice(1,3).join(',').trim();
-      var dlat = parseFloat(item.lat), dlon = parseFloat(item.lon);
-      var d = hav(lat, lon, dlat, dlon);
-      var div = document.createElement('div');
-      div.className = 'sri';
-      div.innerHTML =
-        '<div class="sri-ic">' + placeIco(item.type, item.class) + '</div>' +
-        '<div style="flex:1;min-width:0">' +
-          '<div class="sri-name">' + esc(name) + '</div>' +
-          '<div class="sri-addr">' + esc(addr) + '</div>' +
-        '</div>' +
-        '<div class="sri-d">' + (d<1?(d*1000).toFixed(0)+'m':d.toFixed(1)+'km') + '</div>';
-      div.onclick = function(){ selectDest({name:name, addr:item.display_name, lat:dlat, lon:dlon}); };
+async function doSearch(q){
+  const el=document.getElementById('sr');
+  const lat=S.lat||44.43, lon=S.lon||26.10;
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=8&addressdetails=1&accept-language=ro,en`,
+      {headers:{'Accept-Language':'ro,en','User-Agent':'CoachDrive/v4'}});
+    const data=await r.json();
+    if(!data.length){el.innerHTML='<div class="sr-msg">Niciun rezultat</div>';return;}
+    el.innerHTML='';
+    data.forEach(item=>{
+      const name=(item.namedetails?.name)||item.display_name.split(',')[0];
+      const addr=item.display_name.split(',').slice(1,3).join(',').trim();
+      const dlat=parseFloat(item.lat), dlon=parseFloat(item.lon);
+      const d=hav(lat,lon,dlat,dlon);
+      const div=document.createElement('div');
+      div.className='sri';
+      div.innerHTML=`<div class="sri-ic">${placeIco(item.type,item.class)}</div>
+        <div style="flex:1;min-width:0"><div class="sri-name">${esc(name)}</div><div class="sri-addr">${esc(addr)}</div></div>
+        <div class="sri-d">${d<1?(d*1000).toFixed(0)+'m':d.toFixed(1)+'km'}</div>`;
+      div.onclick=()=>selectDest({name,addr:item.display_name,lat:dlat,lon:dlon});
       el.appendChild(div);
     });
-  })
-  .catch(function() {
-    el.innerHTML = '<div class="sr-msg">Eroare de rețea — verifică conexiunea</div>';
-  });
+  }catch(e){el.innerHTML='<div class="sr-msg">Eroare rețea</div>';}
 }
-
-function placeIco(type, cls) {
-  var m = {restaurant:'🍽',cafe:'☕',fast_food:'🍔',hospital:'🏥',school:'🎓',university:'🎓',fuel:'⛽',parking:'🅿️',pharmacy:'💊',supermarket:'🛒',bank:'🏦',hotel:'🏨',airport:'✈️',station:'🚆',church:'⛪',museum:'🏛',park:'🌳'};
-  if (m[type]) return m[type];
-  if (cls==='highway') return '🛣';
-  if (cls==='place'||cls==='boundary') return '🏙';
-  if (cls==='aeroway') return '✈️';
-  if (cls==='railway') return '🚆';
-  return '📍';
+function placeIco(type,cls){
+  const m={restaurant:'🍽',cafe:'☕',fast_food:'🍔',hospital:'🏥',school:'🎓',university:'🎓',fuel:'⛽',parking:'🅿️',pharmacy:'💊',supermarket:'🛒',bank:'🏦',hotel:'🏨',airport:'✈️',station:'🚆',church:'⛪',museum:'🏛',park:'🌳'};
+  if(m[type])return m[type];
+  if(cls==='highway')return'🛣';if(cls==='place'||cls==='boundary')return'🏙';
+  if(cls==='aeroway')return'✈️';if(cls==='railway')return'🚆';return'📍';
 }
-function clearS() {
-  document.getElementById('si').value = '';
-  document.getElementById('sx').style.display = 'none';
+function clearS(){
+  document.getElementById('si').value='';
+  document.getElementById('sx').style.display='none';
   document.getElementById('sr').classList.remove('show');
-  document.getElementById('sr').innerHTML = '';
+  document.getElementById('sr').innerHTML='';
 }
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ═══════════════════════════
-// DESTINATION + ROUTING
-// ═══════════════════════════
-function selectDest(dest) {
-  S.dest = dest; S._arrived = false;
+// ═══════════════════════════════════════
+// DESTINATION + ROUTING — Mapbox Directions (instant)
+// ═══════════════════════════════════════
+async function selectDest(dest){
+  S.dest=dest; S._arrived=false;
   clearS();
-  document.getElementById('dc-name').textContent = dest.name;
-  document.getElementById('dc-addr').textContent = dest.addr.slice(0,55) + (dest.addr.length>55?'...':'');
+  document.getElementById('dc-name').textContent=dest.name;
+  document.getElementById('dc-addr').textContent=dest.addr.slice(0,55)+(dest.addr.length>55?'...':'');
   document.getElementById('dc').classList.add('show');
-  document.getElementById('wcard').style.display = 'none';
-  document.getElementById('gbub').style.display = 'none';
+  document.getElementById('wcard').style.display='none';
+  document.getElementById('live-score').style.display='none';
 
-  // Dest marker
-  if (S.destMarker) S.map.removeLayer(S.destMarker);
-  var di = L.divIcon({
-    html: '<div style="width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#00C853;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,200,83,.5)"></div>',
-    iconSize:[26,36], iconAnchor:[13,36], className:''
-  });
-  S.destMarker = L.marker([dest.lat, dest.lon], {icon:di, zIndexOffset:500}).addTo(S.map);
-  S.destMarker.bindPopup('<b>' + esc(dest.name) + '</b>').openPopup();
+  // Mapbox destination marker
+  if(S.destMarker) S.destMarker.remove();
+  const el=document.createElement('div');
+  el.innerHTML=`<div style="width:30px;height:36px;display:flex;flex-direction:column;align-items:center">
+    <div style="width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#00C853;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,200,83,.6)"></div>
+  </div>`;
+  el.style.cssText='width:30px;height:36px;cursor:pointer';
+  S.destMarker=new mapboxgl.Marker({element:el,anchor:'bottom'})
+    .setLngLat([dest.lon,dest.lat])
+    .setPopup(new mapboxgl.Popup({offset:30}).setHTML(`<b style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:#fff">${dest.name}</b>`))
+    .addTo(S.map);
+  S.destMarker.getPopup().addTo(S.map);
 
   // Quick estimate
-  if (S.lat) {
-    var d = hav(S.lat, S.lon, dest.lat, dest.lon);
-    document.getElementById('dc-km').textContent = d.toFixed(1);
-    document.getElementById('dc-min').textContent = Math.round(d/0.55);
-    document.getElementById('dc-L').textContent = (d*0.072).toFixed(1);
+  if(S.lat){
+    const d=hav(S.lat,S.lon,dest.lat,dest.lon);
+    document.getElementById('dc-km').textContent=d.toFixed(1);
+    document.getElementById('dc-min').textContent=Math.round(d/0.55);
+    document.getElementById('dc-L').textContent=(d*0.072).toFixed(1);
   }
-  setMsg('Calculez ruta spre ' + dest.name + '...');
-  fetchRoutes(dest);
+  setMsg(`Calculez ruta Mapbox spre ${dest.name}...`);
+  await fetchRouteMapbox(dest);
 }
 
-function fetchRoutes(dest) {
-  if (!S.lat) return;
-  var base = 'https://router.project-osrm.org/route/v1/driving/' + S.lon + ',' + S.lat + ';' + dest.lon + ',' + dest.lat;
-  fetch(base + '?overview=full&geometries=geojson&steps=true')
-  .then(function(r){ return r.json(); })
-  .then(function(d) {
-    if (d.code !== 'Ok' || !d.routes || !d.routes.length) {
-      showAlert('ai', '⚠️ Routing indisponibil — se folosește ruta directă'); return;
-    }
-    var rt = d.routes[0];
-    var km = rt.distance/1000, min = Math.round(rt.duration/60);
-    S.routes.fastest  = {km:km,        min:min,    geo:rt.geometry, steps:rt.legs[0].steps||[]};
-    S.routes.shortest = {km:km*0.92,   min:min+3,  geo:rt.geometry, steps:rt.legs[0].steps||[]};
-    S.routes.eco      = {km:km*0.97,   min:min+5,  geo:rt.geometry, steps:rt.legs[0].steps||[]};
+async function fetchRouteMapbox(dest){
+  if(!S.lat) return;
+  try{
+    // Mapbox Directions API — instant, cu trafic real
+    const url=`https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${S.lon},${S.lat};${dest.lon},${dest.lat}?geometries=geojson&steps=true&overview=full&access_token=${mapboxgl.accessToken}`;
+    const r=await fetch(url);
+    const d=await r.json();
+    if(!d.routes?.length){showAlert('ai','Routing indisponibil');return;}
 
-    document.getElementById('pf-val').textContent = min + 'min';
-    document.getElementById('ps-val').textContent = (km*0.92).toFixed(1) + 'km';
-    document.getElementById('pe-val').textContent = (km*0.97*0.072).toFixed(1) + 'L';
+    const rt=d.routes[0];
+    const km=rt.distance/1000, min=Math.round(rt.duration/60);
+    const steps=rt.legs[0].steps||[];
+
+    // Calculez dificultate rută
+    const diff=calcRouteDifficulty(rt, S.weather);
+
+    S.routes.fastest={km,min,geo:rt.geometry,steps,diff};
+    S.routes.shortest={km:km*0.92,min:min+4,geo:rt.geometry,steps,diff:{...diff,score:Math.max(1,diff.score-1)}};
+    S.routes.eco={km:km*0.95,min:min+6,geo:rt.geometry,steps,diff:{...diff,label:'Ușor',score:1}};
+
+    // Update pills
+    const setDiff=(id,d2)=>{
+      const el=document.getElementById(id);
+      el.textContent=d2.label;
+      el.className='rpill-diff '+(d2.score<=2?'diff-easy':d2.score<=3?'diff-med':'diff-hard');
+    };
+    document.getElementById('pf-val').textContent=min+'min';
+    document.getElementById('ps-val').textContent=(km*0.92).toFixed(1)+'km';
+    document.getElementById('pe-val').textContent=(km*0.95*0.072).toFixed(1)+'L';
+    setDiff('pf-diff',S.routes.fastest.diff);
+    setDiff('ps-diff',S.routes.shortest.diff);
+    setDiff('pe-diff',S.routes.eco.diff);
 
     document.getElementById('rpills').classList.add('show');
     setMode('fastest');
 
-    var coords = rt.geometry.coordinates;
-    if (coords.length) {
-      var bnds = L.latLngBounds(coords.map(function(c){return [c[1],c[0]];}));
-      S.map.fitBounds(bnds, {padding:[70,70]});
+    // Fit map
+    const coords=rt.geometry.coordinates;
+    if(coords.length){
+      const lngs=coords.map(c=>c[0]), lats=coords.map(c=>c[1]);
+      S.map.fitBounds([[Math.min(...lngs),Math.min(...lats)],[Math.max(...lngs),Math.max(...lats)]],{padding:80,duration:1000});
     }
-    showAlert('as', '🗺 Rută găsită · ' + km.toFixed(1) + ' km · ~' + min + ' min');
-  })
-  .catch(function() {
-    showAlert('ai', 'Routing offline — verifică conexiunea');
-  });
+    showAlert('as',`🗺 Rută Mapbox · ${km.toFixed(1)} km · ~${min} min · Dificultate: ${diff.label}`);
+  }catch(e){showAlert('ai','Eroare routing Mapbox');}
 }
 
-function setMode(mode) {
-  S.mode = mode;
-  ['fastest','shortest','eco'].forEach(function(m) {
-    document.getElementById('pill-'+m).classList.toggle('active', m===mode);
+function calcRouteDifficulty(rt, wx){
+  // Factori: distanță, nr. manevre, vreme, ora
+  let score=0;
+  const km=rt.distance/1000;
+  const steps=rt.legs[0].steps||[];
+  const turns=steps.filter(s=>s.maneuver?.type==='turn').length;
+
+  if(km>50) score+=2; else if(km>20) score+=1;
+  if(turns>15) score+=2; else if(turns>8) score+=1;
+  if(wx){
+    if(wx.prec>2) score+=2;
+    else if(wx.prec>0) score+=1;
+    if(wx.code>=71&&wx.code<=77) score+=2;
+    if(wx.code===45||wx.code===48) score+=1;
+  }
+  const h=new Date().getHours();
+  if((h>=7&&h<=9)||(h>=17&&h<=19)) score+=1; // rush hour
+
+  if(score<=1) return{label:'Ușor 🟢',score:1,color:'var(--safe)'};
+  if(score<=3) return{label:'Moderat 🟡',score:2,color:'var(--warn)'};
+  if(score<=5) return{label:'Dificil 🟠',score:3,color:'var(--danger)'};
+  return{label:'Expert 🔴',score:4,color:'var(--danger)'};
+}
+
+function setMode(mode){
+  S.mode=mode;
+  ['fastest','shortest','eco'].forEach(m=>document.getElementById('pill-'+m).classList.toggle('active',m===mode));
+  const rt=S.routes[mode];
+  if(!rt) return;
+  S.totalKm=rt.km; S.totalMin=rt.min; S.steps=rt.steps; S.stepIdx=0;
+
+  document.getElementById('dc-km').textContent=rt.km.toFixed(1);
+  document.getElementById('dc-min').textContent=rt.min;
+  document.getElementById('dc-L').textContent=(rt.km*0.072).toFixed(1);
+
+  // Difficulty badge
+  const db=document.getElementById('dc-diff-badge');
+  db.textContent=rt.diff.label;
+  db.style.background=rt.diff.score<=1?'rgba(0,200,83,.12)':rt.diff.score<=2?'rgba(255,214,0,.1)':'rgba(255,61,0,.1)';
+  db.style.color=rt.diff.color;
+  db.style.border=`1px solid ${rt.diff.color}55`;
+
+  // Draw route on Mapbox
+  if(S.map.getSource('route')) S.map.removeLayer('route'), S.map.removeSource('route');
+  S.map.addSource('route',{type:'geojson',data:{type:'Feature',geometry:rt.geo}});
+  S.map.addLayer({id:'route',type:'line',source:'route',
+    layout:{'line-join':'round','line-cap':'round'},
+    paint:{'line-color':mode==='eco'?'#00C853':mode==='shortest'?'#00B0FF':'#00C853','line-width':5,'line-opacity':.9}
   });
-  var rt = S.routes[mode];
-  if (!rt) return;
-  S.totalKm = rt.km; S.totalMin = rt.min;
-  S.steps = rt.steps; S.stepIdx = 0;
 
-  document.getElementById('dc-km').textContent = rt.km.toFixed(1);
-  document.getElementById('dc-min').textContent = rt.min;
-  document.getElementById('dc-L').textContent = (rt.km*0.072).toFixed(1);
-
-  if (S.routeLayer) S.map.removeLayer(S.routeLayer);
-  S.routeLayer = L.geoJSON(rt.geo, {style:{color:'#00C853',weight:5,opacity:.88}}).addTo(S.map);
   updateTurnBar();
-
-  var msgs = {
-    fastest: 'Ruta rapidă: ' + rt.km.toFixed(1) + ' km, ~' + rt.min + ' min. ' + wxAdvice(),
-    shortest: 'Ruta scurtă: ' + rt.km.toFixed(1) + ' km, ~' + rt.min + ' min. Mai puțini km.',
-    eco: 'Ruta eco: estimez ' + (rt.km*0.072).toFixed(1) + 'L, ~' + rt.min + ' min.'
+  const msgs={
+    fastest:`Ruta rapidă cu trafic real: ${rt.km.toFixed(1)} km, ~${rt.min} min. Dificultate: ${rt.diff.label}. ${wxAdvice()}`,
+    shortest:`Ruta scurtă: ${rt.km.toFixed(1)} km, ~${rt.min} min. Dificultate: ${rt.diff.label}.`,
+    eco:`Ruta eco: ${(rt.km*0.072).toFixed(1)}L estimat, ~${rt.min} min. Cel mai eficient.`
   };
   setMsg(msgs[mode]);
+  if(!S.driving) tts(msgs[mode].split('.')[0]);
 }
 
-function updateTurnBar() {
-  if (!S.steps.length || S.stepIdx >= S.steps.length) {
-    document.getElementById('rbar').classList.remove('show'); return;
-  }
-  var st = S.steps[S.stepIdx];
-  var dm = st.distance > 1000 ? (st.distance/1000).toFixed(1)+'km' : Math.round(st.distance)+'m';
-  var arr = mArrow(st.maneuver && st.maneuver.modifier, st.maneuver && st.maneuver.type);
-  var rem = Math.max(0, S.totalMin - (S.sessionMin||0));
-  document.getElementById('rba').textContent = arr;
-  document.getElementById('rbs').textContent = st.name || 'Continuă';
-  document.getElementById('rbd').textContent = 'în ' + dm;
-  document.getElementById('rbe').textContent = rem > 0 ? rem + ' min' : '🏁';
+function updateTurnBar(){
+  if(!S.steps.length||S.stepIdx>=S.steps.length){document.getElementById('rbar').classList.remove('show');return;}
+  const st=S.steps[S.stepIdx];
+  const dm=st.distance>1000?(st.distance/1000).toFixed(1)+'km':Math.round(st.distance)+'m';
+  const arr=mArrow(st.maneuver?.modifier,st.maneuver?.type);
+  const rem=Math.max(0,S.totalMin-(S.sessionMin||0));
+  document.getElementById('rba').textContent=arr;
+  document.getElementById('rbs').textContent=st.name||'Continuă';
+  document.getElementById('rbd').textContent='în '+dm;
+  document.getElementById('rbe').textContent=rem>0?rem+' min':'🏁';
   document.getElementById('rbar').classList.add('show');
-  document.getElementById('dh-arr').textContent = arr;
-  document.getElementById('dh-str').textContent = st.name || 'Continuă';
-  document.getElementById('dh-nd').textContent = 'în ' + dm;
+  document.getElementById('dh-arr').textContent=arr;
+  document.getElementById('dh-str').textContent=st.name||'Continuă';
+  document.getElementById('dh-nd').textContent='în '+dm;
 }
-function mArrow(mod, type) {
-  if (type==='arrive') return '🏁';
-  if (type==='depart') return '▲';
-  var m = {'straight':'↑','slight left':'↖','left':'←','sharp left':'↩','slight right':'↗','right':'→','sharp right':'↪','uturn':'↺'};
-  return m[mod] || '↑';
+function mArrow(mod,type){
+  if(type==='arrive')return'🏁';if(type==='depart')return'▲';
+  const m={'straight':'↑','slight left':'↖','left':'←','sharp left':'↩','slight right':'↗','right':'→','sharp right':'↪','uturn':'↺'};
+  return m[mod]||'↑';
 }
-function clearDest() {
-  S.dest=null; S.steps=[]; S.stepIdx=0; S._arrived=false;
+function clearDest(){
+  S.dest=null;S.steps=[];S.stepIdx=0;S._arrived=false;
   S.routes={fastest:null,shortest:null,eco:null};
-  if (S.destMarker) { S.map.removeLayer(S.destMarker); S.destMarker=null; }
-  if (S.routeLayer) { S.map.removeLayer(S.routeLayer); S.routeLayer=null; }
+  if(S.destMarker){S.destMarker.remove();S.destMarker=null;}
+  if(S.map.getSource('route')){try{S.map.removeLayer('route');S.map.removeSource('route');}catch(e){}}
   document.getElementById('dc').classList.remove('show');
   document.getElementById('rpills').classList.remove('show');
-  document.getElementById('wcard').style.display = 'flex';
-  document.getElementById('gbub').style.display = 'flex';
+  document.getElementById('wcard').style.display='flex';
+  document.getElementById('live-score').style.display='block';
   document.getElementById('rbar').classList.remove('show');
   setMsg('Destinație ștearsă. Caută oriunde în lume.');
 }
 
-// ═══════════════════════════
+// ═══════════════════════════════════════
 // WEATHER — Open-Meteo (FREE)
-// ═══════════════════════════
-function fetchWeatherByIP() {
+// ═══════════════════════════════════════
+function fetchWeatherByIP(){
   fetch('https://ipapi.co/json/')
-  .then(function(r){ return r.json(); })
-  .then(function(d){ if (d.latitude) fetchWeather(d.latitude, d.longitude); })
-  .catch(function(){});
+  .then(r=>r.json())
+  .then(d=>{if(d.latitude)fetchWeather(d.latitude,d.longitude);})
+  .catch(()=>{});
 }
-
-function fetchWeather(lat, lon) {
-  fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,weather_code,precipitation,wind_speed_10m&timezone=auto&forecast_days=1')
-  .then(function(r){ return r.json(); })
-  .then(function(d) {
-    if (!d.current) return;
-    var temp = Math.round(d.current.temperature_2m);
-    var code = d.current.weather_code;
-    var prec = d.current.precipitation || 0;
-    var wind = Math.round(d.current.wind_speed_10m);
-    var desc = wmoDesc(code);
-    S.weather = {temp:temp, code:code, prec:prec, wind:wind, desc:desc};
-    document.getElementById('w-ico').textContent = wxIco(code);
-    document.getElementById('w-temp').textContent = temp + '°C';
-    document.getElementById('w-desc').textContent = desc;
-    document.getElementById('ss-wx').textContent = temp + '°';
-    document.getElementById('dh-wx').textContent = wxIco(code) + ' ' + temp + '°C';
-    var isRain = prec>0||(code>=51&&code<=82);
-    var isSnow = code>=71&&code<=77;
-    var isFog  = code===45||code===48;
-    var rb = document.getElementById('w-road');
-    if (isSnow)       { rb.textContent='❄ Posibil polei'; rb.className='wbadge bsnow'; }
-    else if (isRain)  { rb.textContent='💧 Carosabil umed'; rb.className='wbadge bwet'; }
-    else if (isFog)   { rb.textContent='🌫 Vizibilitate redusă'; rb.className='wbadge bfog'; }
-    else              { rb.textContent='✓ Carosabil uscat'; rb.className='wbadge bdry'; }
-    if (!S.driving) setMsg(wxAdvice());
-    if (isSnow || (isRain&&prec>2)) showAlert('aw', '⚠️ ' + desc + ' — reduceți viteza cu 20%');
-    setTimeout(function(){ if(S.lat) fetchWeather(S.lat,S.lon); }, 300000);
-  }).catch(function(){});
+async function fetchWeather(lat,lon){
+  try{
+    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,precipitation,wind_speed_10m&timezone=auto&forecast_days=1`);
+    const d=await r.json();
+    if(!d.current)return;
+    const{temperature_2m:temp,weather_code:code,precipitation:prec,wind_speed_10m:wind}=d.current;
+    const desc=wmoDesc(code);
+    S.weather={temp:Math.round(temp),code,prec:prec||0,wind:Math.round(wind),desc};
+    document.getElementById('w-ico').textContent=wxIco(code);
+    document.getElementById('w-temp').textContent=Math.round(temp)+'°C';
+    document.getElementById('w-desc').textContent=desc;
+    document.getElementById('ss-wx').textContent=Math.round(temp)+'°';
+    document.getElementById('dh-wx').textContent=wxIco(code)+' '+Math.round(temp)+'°C';
+    const isRain=prec>0||(code>=51&&code<=82);
+    const isSnow=code>=71&&code<=77;
+    const isFog=code===45||code===48;
+    const rb=document.getElementById('w-road');
+    if(isSnow){rb.textContent='❄ Polei posibil';rb.className='wbadge bsnow';}
+    else if(isRain){rb.textContent='💧 Carosabil umed';rb.className='wbadge bwet';}
+    else if(isFog){rb.textContent='🌫 Vizibilitate redusă';rb.className='wbadge bfog';}
+    else{rb.textContent='✓ Carosabil uscat';rb.className='wbadge bdry';}
+    if(!S.driving)setMsg(wxAdvice());
+    if(isSnow||(isRain&&prec>2))showAlert('aw',`⚠️ ${desc} — reduceți viteza cu 20%`);
+    setTimeout(()=>{if(S.lat)fetchWeather(S.lat,S.lon);},300000);
+  }catch(e){}
 }
-
-function wmoDesc(c) {
+function wmoDesc(c){
   if(c===0)return'Cer senin';if(c<=2)return'Parțial noros';if(c===3)return'Noros';
   if(c<=48)return'Ceață';if(c<=57)return'Burniță';if(c<=67)return'Ploaie';
   if(c<=77)return'Ninsoare';if(c<=82)return'Averse';if(c<=99)return'Furtună';return'Variabil';
 }
-function wxIco(c) {
+function wxIco(c){
   if(!c&&c!==0)return'🌤';if(c===0)return'☀️';if(c<=2)return'⛅';if(c<=3)return'☁️';
   if(c<=48)return'🌫';if(c<=57)return'🌦';if(c<=67)return'🌧';if(c<=77)return'❄️';
   if(c<=82)return'🌨';if(c<=99)return'⛈';return'🌤';
 }
-function wxAdvice() {
-  if (!S.weather) return 'Se încarcă date meteo...';
-  var c=S.weather.code, t=S.weather.temp, p=S.weather.prec, w=S.weather.wind;
-  if(c>=80&&c<=99) return 'Furtună! Maxim 60 km/h, distanță dublă față de vehiculul din față.';
-  if(c>=71&&c<=77) return 'Ninsoare, '+t+'°C — risc polei. Maxim 50 km/h, frânare ultra-blândă.';
-  if(p>0||(c>=51&&c<=82)) return wmoDesc(c)+', '+p.toFixed(1)+'mm — carosabil umed. Mărește distanța 30%.';
-  if(c===45||c===48) return 'Ceață — faruri ceață, maxim 50 km/h, distanță 4 secunde.';
-  if(w>50) return 'Vânt '+w+' km/h — atenție rafale laterale pe poduri.';
-  if(t<2) return t+'°C — risc polei pe poduri și zone umbroase.';
-  return 'Condiții '+wmoDesc(c)+' — '+t+'°C. Vizibilitate bună. Drum bun!';
+function wxAdvice(){
+  if(!S.weather)return'Se încarcă meteo...';
+  const{code:c,temp:t,prec:p,wind:w}=S.weather;
+  if(c>=80&&c<=99)return'Furtună! Maxim 60 km/h, distanță dublă față de vehiculul din față.';
+  if(c>=71&&c<=77)return`Ninsoare, ${t}°C — risc polei. Maxim 50 km/h, frânare ultra-blândă.`;
+  if(p>0||(c>=51&&c<=82))return`${wmoDesc(c)}, ${p.toFixed(1)}mm — carosabil umed. Mărește distanța 30%.`;
+  if(c===45||c===48)return'Ceață — faruri ceață, maxim 50 km/h, distanță 4 secunde.';
+  if(w>50)return`Vânt ${w} km/h — atenție rafale laterale pe poduri.`;
+  if(t<2)return`${t}°C — risc polei pe poduri și zone umbroase.`;
+  return`Condiții ${wmoDesc(c)} — ${t}°C. Vizibilitate bună. Drum bun!`;
 }
-function wxCtx() {
-  if (!S.weather) return '';
-  return 'Meteo: '+S.weather.desc+', '+S.weather.temp+'°C, precipitații '+S.weather.prec+'mm.';
+function wxCtx(){
+  return S.weather?`Meteo: ${S.weather.desc}, ${S.weather.temp}°C, precipitații ${S.weather.prec}mm.`:'';
 }
-function reverseGeo(lat,lon) {
-  fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lon+'&format=json', {
-    headers:{'User-Agent':'CoachDrive/Demo'}
-  })
-  .then(function(r){return r.json();})
-  .then(function(d){
-    var a=d.address;
-    var city=a.city||a.town||a.village||a.county||'';
-    if(city) document.getElementById('w-city').textContent=city;
-    document.getElementById('si').placeholder='📍 '+(a.road||a.suburb||city||'Locație curentă')+' — Caută oriunde...';
+function reverseGeo(lat,lon){
+  fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{headers:{'User-Agent':'CoachDrive/v4'}})
+  .then(r=>r.json()).then(d=>{
+    const a=d.address;
+    const city=a.city||a.town||a.village||a.county||'';
+    if(city)document.getElementById('w-city').textContent=city;
+    document.getElementById('si').placeholder=`📍 ${a.road||a.suburb||city||'Locație curentă'} — Caută oriunde...`;
     fetchWeather(lat,lon);
-  }).catch(function(){});
+  }).catch(()=>{});
 }
 
-// ═══════════════════════════
-// COACH MESSAGES (fără Claude API)
-// ═══════════════════════════
-var COACH_MSGS_DRIVE = [
+// ═══════════════════════════════════════
+// COMMUNITY ALERTS (simulate Waze-like)
+// ═══════════════════════════════════════
+const COMM_ALERTS=[
+  {ico:'📷',cls:'cf-radar',txt:'Radar fix raportat de 3 șoferi',dist:'1.2km'},
+  {ico:'⚠️',cls:'cf-accident',txt:'Accident minor pe banda dreaptă',dist:'2.4km'},
+  {ico:'🚧',cls:'cf-works',txt:'Lucrări rutiere — o bandă blocată',dist:'3.1km'},
+  {ico:'🐾',cls:'cf-accident',txt:'Animal pe carosabil raportat',dist:'0.8km'},
+  {ico:'💧',cls:'cf-accident',txt:'Carosabil inundat pe tronson',dist:'4.2km'},
+  {ico:'👮',cls:'cf-radar',txt:'Control de poliție raportat',dist:'1.8km'},
+  {ico:'🚗',cls:'cf-accident',txt:'Vehicul oprit pe banda de urgență',dist:'2.9km'},
+];
+let commIdx=0;
+function startCommAlerts(){
+  S.commTimer=setInterval(()=>{
+    if(!S.dest||!S.driving)return;
+    const a=COMM_ALERTS[commIdx%COMM_ALERTS.length]; commIdx++;
+    const feed=document.getElementById('comm-feed');
+    if(feed.children.length>2)feed.removeChild(feed.firstChild);
+    const el=document.createElement('div');
+    el.className=`cf-item ${a.cls}`;
+    el.innerHTML=`<span style="font-size:16px">${a.ico}</span><span class="cf-txt" style="font-size:12px;color:var(--t2)">${a.txt}</span><span class="cf-dist">${a.dist}</span>`;
+    feed.appendChild(el);
+    document.getElementById('score-badge').classList.add('show');
+    setTimeout(()=>{try{feed.removeChild(el);}catch(e){}},8000);
+    // Notifică badge
+    const navBadge=document.getElementById('score-badge');
+    navBadge.classList.add('show');
+    tts(a.txt.split('—')[0].trim());
+  },35000+Math.random()*25000);
+}
+
+// ═══════════════════════════════════════
+// DRIVE SESSION
+// ═══════════════════════════════════════
+const HAZARDS=[
+  {ico:'⚠️',cls:'aw',msg:'Curbă strânsă în 300m — coboară la {s} înainte de viraj.'},
+  {ico:'📷',cls:'ad',msg:'Radar în 500m — verifică viteza. Frânare progresivă.'},
+  {ico:'🏫',cls:'ad',msg:'Zonă școlară — limita 30 km/h, pietoni posibili.'},
+  {ico:'🕳',cls:'aw',msg:'Suprafață degradată raportată — atenție km următori.'},
+  {ico:'🌉',cls:'aw',msg:'Pod — suprafața înghață prima la temperaturi scăzute.'},
+  {ico:'💧',cls:'aw',msg:'Carosabil umed detectat — mărește distanța de frânare.'},
+];
+const COACH_MSGS=[
   'Mențin distanța de siguranță — minimum 3 secunde față de vehiculul din față.',
   'Frânare progresivă la intersecție — anticipezi bine!',
-  'Viteza medie bună. Păstrează ritmul constant pentru consum eco-eficient.',
-  'Scanează intersecțiile cu 5 secunde înainte — anticiparea e cheia conducerii defensive.',
-  'Distanța față de vehiculul din față e esențială pe carosabil umed.',
+  'Scanează intersecțiile cu 5 secunde înainte de ajunge la ele.',
+  'Viteza medie bună. Menține ritmul constant pentru consum eco-eficient.',
+  'Verifică unghiurile moarte înainte de a schimba banda.',
 ];
-var HAZARDS = [
-  {ico:'⚠️',cls:'aw',msg:'Curbă strânsă în 300m — coboară la {s} înainte de viraj.'},
-  {ico:'🚦',cls:'aw',msg:'Trafic intens detectat — distanță 4 secunde, anticipează frânarea.'},
-  {ico:'📷',cls:'ad',msg:'Radar în 500m — verifică viteza, frânare progresivă acum.'},
-  {ico:'🏫',cls:'ad',msg:'Zonă școlară — limita 30 km/h, pietoni posibili.'},
-  {ico:'🕳', cls:'aw',msg:'Suprafață degradată raportată — atenție pe km următori.'},
-  {ico:'🌉',cls:'aw',msg:'Pod — suprafața înghață prima la temperaturi scăzute.'},
-];
-var coachIdx = 0;
-function updateCoachMsg() {
-  var msg = COACH_MSGS_DRIVE[coachIdx % COACH_MSGS_DRIVE.length];
-  coachIdx++;
-  document.getElementById('dh-coach').textContent = msg;
-  tts(msg);
-}
-function fireHazard() {
-  if (!S.dest || !S.driving) return;
-  var pool = HAZARDS.slice();
-  var wx = S.weather;
-  if (wx) {
-    if (wx.prec>0) pool.push({ico:'💧',cls:'aw',msg:'Carosabil umed — distanța de frânare cu 40% mai mare.'});
-    if (wx.temp<3) pool.push({ico:'🧊',cls:'ad',msg:wx.temp+'°C — risc polei real. Maxim 60, frânare lentă.'});
-    if (wx.code===45||wx.code===48) pool.push({ico:'🌫',cls:'ad',msg:'Ceață densă — maxim 50 km/h, distanță 6 secunde.'});
-  }
-  var h = pool[Math.floor(Math.random()*pool.length)];
-  var s2 = Math.max(40, Math.round(S.speed*0.75/10)*10);
-  var msg = h.msg.replace('{s}', s2+'km/h');
-  var strip = document.getElementById('dhaz');
-  document.getElementById('dhaz-i').textContent = h.ico;
-  document.getElementById('dhaz-t').textContent = msg;
-  strip.className = 'dhaz ' + h.cls + ' show';
-  document.getElementById('dh-coach').textContent = msg.split('.')[0];
-  tts(msg.split('.')[0]);
-  setTimeout(function(){ strip.classList.remove('show'); }, 9000);
-}
+let coachIdx=0;
 
-// ═══════════════════════════
-// DRIVE SESSION
-// ═══════════════════════════
-function startDrive() {
-  if (S.driving) return;
-  S.driving=true; S.driveKm=0; S.brakingEvt=0;
+function startDrive(){
+  if(S.driving)return;
+  S.driving=true; S.driveKm=0; S.brakingEvt=0; S.overSpeedEvt=0;
   S.speedHist=[]; S.sessionMin=0; S._arrived=false;
   document.getElementById('dhud').classList.add('on');
   document.getElementById('sbar').classList.add('show');
-  if (S.steps.length) updateTurnBar();
-  var t0 = Date.now();
-  S.sessionTimer = setInterval(function() {
-    var el = Math.floor((Date.now()-t0)/60000);
-    var sec = Math.floor(((Date.now()-t0)%60000)/1000);
-    S.sessionMin = el;
-    document.getElementById('dh-dur').textContent = el + ':' + String(sec).padStart(2,'0');
-    document.getElementById('sb-t').textContent = el + ' min';
-    var style = S.brakingEvt===0?'A+':S.brakingEvt<2?'A':S.brakingEvt<4?'B':'C';
-    document.getElementById('sb-s').textContent = style;
-    document.getElementById('dm-s').textContent = style;
-  }, 1000);
-  S.hazardTimer = setInterval(fireHazard, 50000 + Math.random()*40000);
-  var msg = S.dest
-    ? 'Pornesc ruta spre '+S.dest.name+': '+S.totalKm.toFixed(1)+'km, ~'+S.totalMin+'min. '+wxAdvice()
-    : wxAdvice();
-  document.getElementById('dh-coach').textContent = msg;
+  if(S.steps.length)updateTurnBar();
+  const t0=Date.now();
+  S.sessionTimer=setInterval(()=>{
+    const el=Math.floor((Date.now()-t0)/60000);
+    const sec=Math.floor(((Date.now()-t0)%60000)/1000);
+    S.sessionMin=el;
+    document.getElementById('dh-dur').textContent=`${el}:${String(sec).padStart(2,'0')}`;
+    document.getElementById('sb-t').textContent=el+' min';
+    updateLiveScore();
+  },1000);
+  S.hazardTimer=setInterval(()=>{
+    if(!S.dest||!S.driving)return;
+    let pool=[...HAZARDS];
+    if(S.weather?.prec>0)pool.push({ico:'💧',cls:'aw',msg:`Carosabil umed — distanța de frânare cu 40% mai mare la ${S.speed}km/h.`});
+    if(S.weather?.temp<3)pool.push({ico:'🧊',cls:'ad',msg:`${S.weather.temp}°C — risc polei real. Maxim 60km/h.`});
+    const h=pool[Math.floor(Math.random()*pool.length)];
+    const s2=Math.max(40,Math.round(S.speed*0.75/10)*10);
+    const msg=h.msg.replace('{s}',s2+'km/h');
+    const strip=document.getElementById('dhaz');
+    document.getElementById('dhaz-i').textContent=h.ico;
+    document.getElementById('dhaz-t').textContent=msg;
+    strip.className=`dhaz ${h.cls} show`;
+    document.getElementById('dh-coach').textContent=msg.split('.')[0];
+    tts(msg.split('.')[0]);
+    setTimeout(()=>strip.classList.remove('show'),9000);
+  },45000+Math.random()*35000);
+
+  // Coach cycling
+  setInterval(()=>{
+    if(!S.driving)return;
+    const msg=COACH_MSGS[coachIdx%COACH_MSGS.length]; coachIdx++;
+    document.getElementById('dh-coach').textContent=msg;
+    setMsg(msg);
+  },20000);
+
+  startCommAlerts();
+
+  const msg=S.dest
+    ?`Pornesc ruta spre ${S.dest.name}: ${S.totalKm.toFixed(1)}km, ~${S.totalMin}min. ${wxAdvice()}`
+    :wxAdvice();
+  document.getElementById('dh-coach').textContent=msg;
   tts(msg);
-  showAlert('ai', '🚗 Sesiune activă · Coach monitorizează');
+  showAlert('ai','🚗 Sesiune activă · Coach monitorizează');
+  setMsg(msg);
 }
 
-function stopDrive() {
-  if (!S.driving) return;
-  S.driving = false;
+function stopDrive(){
+  if(!S.driving)return;
+  S.driving=false;
   clearInterval(S.sessionTimer);
   clearInterval(S.hazardTimer);
+  clearInterval(S.commTimer);
   document.getElementById('dhud').classList.remove('on');
-  openScore(calcScore());
+  const sc=calcScore();
+  addXP(sc);
+  checkBadges(sc);
+  openScore(sc);
 }
 
-// ═══════════════════════════
-// PARKING
-// ═══════════════════════════
-function openParking() {
-  document.getElementById('pkm').classList.add('on');
-  document.getElementById('pk-sub').textContent = 'Se caută locuri de parcare...';
-  document.getElementById('pk-list').innerHTML = '';
-  if (!S.lat) { document.getElementById('pk-sub').textContent='GPS necesar pentru parcare'; return; }
-  fetch('https://nominatim.openstreetmap.org/search?q=parking&format=json&limit=10&bounded=1&viewbox='+(S.lon-.02)+','+(S.lat+.015)+','+(S.lon+.02)+','+(S.lat-.015)+'&addressdetails=1', {
-    headers:{'User-Agent':'CoachDrive/Demo'}
-  })
-  .then(function(r){return r.json();})
-  .then(function(data) {
-    var parks = data.filter(function(p){return p.type==='parking'||p.type==='multi-storey';});
-    if (!parks.length) {
-      document.getElementById('pk-sub').textContent='Nicio parcare dedicată — zone posibile:';
-      addPark('Parcare stradală estimată','Stradă adiacentă',0.1,null,null);
-      addPark('Parcare publică','Zonă centrală',0.3,null,null);
-      return;
+// ═══════════════════════════════════════
+// GAMIFICATION
+// ═══════════════════════════════════════
+const LEVELS=[
+  {name:'BEGINNER',xp:0,next:500,color:'#b0c4d8'},
+  {name:'PRO',xp:500,next:1500,color:'#00C853'},
+  {name:'EXPERT',xp:1500,next:3000,color:'#00B0FF'},
+  {name:'MASTER',xp:3000,next:6000,color:'#AA00FF'},
+  {name:'LEGEND',xp:6000,next:99999,color:'#FFD600'},
+];
+function getLevel(xp){
+  for(let i=LEVELS.length-1;i>=0;i--) if(xp>=LEVELS[i].xp) return LEVELS[i];
+  return LEVELS[0];
+}
+function addXP(sc){
+  const gained=Math.round(sc.tot/2);
+  S.xp+=gained;
+  localStorage.setItem('cd_xp',S.xp);
+  const lv=getLevel(S.xp);
+  const prev=getLevel(S.xp-gained);
+  if(lv.name!==prev.name) showAlert('as',`🎉 Nivel nou: ${lv.name}! +${gained} XP`);
+  updateLevelUI();
+}
+function updateLevelUI(){
+  const lv=getLevel(S.xp);
+  const nx=LEVELS[Math.min(LEVELS.indexOf(lv)+1,LEVELS.length-1)];
+  const pct=Math.round((S.xp-lv.xp)/(nx.xp-lv.xp)*100);
+  document.getElementById('level-name').textContent=lv.name;
+  document.getElementById('level-name').style.webkitTextFillColor=lv.color;
+  document.getElementById('level-xp').textContent=`${S.xp} / ${nx.xp} XP`;
+  document.getElementById('level-bar').style.width=pct+'%';
+  document.getElementById('level-next-lbl').textContent=`Următor: ${nx.name}`;
+  document.getElementById('streak-num').textContent=S.streak;
+}
+
+const BADGE_DEFS=[
+  {id:'safety',ico:'🛡',name:'Siguranță',cond:sc=>sc.sa>=90},
+  {id:'speed',ico:'⚡',name:'Speed Pro',cond:sc=>sc.avg>80&&sc.sa>=80},
+  {id:'eco',ico:'🌿',name:'Eco Driver',cond:sc=>sc.ec>=85},
+  {id:'perfect',ico:'🏆',name:'Perfect Run',cond:sc=>sc.tot>=95},
+  {id:'streak',ico:'🔥',name:'7 Zile',cond:()=>S.streak>=7},
+  {id:'explorer',ico:'🌍',name:'Explorer',cond:sc=>sc.km>=50},
+  {id:'precision',ico:'🎯',name:'Precision',cond:sc=>sc.br>=90&&sc.an>=85},
+  {id:'expert',ico:'👑',name:'Expert',cond:()=>getLevel(S.xp).name==='EXPERT'||getLevel(S.xp).name==='MASTER'||getLevel(S.xp).name==='LEGEND'},
+];
+function checkBadges(sc){
+  let newBadges=[];
+  BADGE_DEFS.forEach(b=>{
+    if(!S.badges.includes(b.id)&&b.cond(sc)){
+      S.badges.push(b.id);
+      newBadges.push(b);
     }
-    document.getElementById('pk-sub').textContent=parks.length+' locuri găsite';
-    parks.slice(0,5).forEach(function(p){
-      var nm=(p.namedetails&&p.namedetails.name)||p.display_name.split(',')[0]||'Parcare';
-      var addr=p.display_name.split(',').slice(1,3).join(',').trim();
-      var dist=hav(S.lat,S.lon,parseFloat(p.lat),parseFloat(p.lon));
-      addPark(nm,addr,dist,parseFloat(p.lat),parseFloat(p.lon));
-    });
-  }).catch(function(){
-    document.getElementById('pk-sub').textContent='Eroare la căutare';
+  });
+  localStorage.setItem('cd_badges',JSON.stringify(S.badges));
+  if(newBadges.length){
+    showAlert('as',`🏅 Badge nou: ${newBadges.map(b=>b.ico+' '+b.name).join(', ')}!`);
+    tts(`Felicitări! Ai câștigat badge-ul ${newBadges[0].name}`);
+  }
+  renderBadges();
+}
+function renderBadges(){
+  const grid=document.getElementById('badges-grid');
+  grid.innerHTML='';
+  BADGE_DEFS.forEach(b=>{
+    const earned=S.badges.includes(b.id);
+    const div=document.createElement('div');
+    div.className=`badge-item ${earned?'earned':'locked'}`;
+    div.innerHTML=`<div class="badge-ico">${b.ico}</div><div class="badge-name">${b.name}</div>`;
+    if(earned){
+      const isNew=S.badges.indexOf(b.id)===S.badges.length-1;
+      if(isNew){const n=document.createElement('div');n.className='badge-new';n.textContent='★';div.appendChild(n);}
+    }
+    grid.appendChild(div);
   });
 }
 
-function addPark(name,addr,dist,lat,lon) {
-  var el=document.createElement('div'); el.className='pki';
-  el.innerHTML='<div class="pkii">🅿️</div>'+
-    '<div><div class="pkin">'+esc(name)+'</div><div class="pkim">'+esc(addr.slice(0,40))+'</div></div>'+
-    '<div class="pkid">'+(dist<1?(dist*1000).toFixed(0)+'m':dist.toFixed(2)+'km')+'</div>';
-  if(lat&&lon) el.onclick=function(){
-    document.getElementById('pkm').classList.remove('on');
-    selectDest({name:'🅿 '+name, addr:addr, lat:lat, lon:lon});
-    showAlert('as','🅿 Navighez spre parcare — sesiunea continuă!');
-  };
-  document.getElementById('pk-list').appendChild(el);
+function shareScore(){
+  const sc=document.getElementById('sc-num').textContent;
+  const gr=document.getElementById('sc-gr').textContent;
+  if(navigator.share){
+    navigator.share({title:'CoachDrive Score',text:`Am obținut scorul ${sc}/100 (nota ${gr}) pe CoachDrive! 🚗`,url:'https://mitroiioana98-ai.github.io/Coach-ai/'});
+  } else {
+    showAlert('ai','Link copiat! mitroiioana98-ai.github.io/Coach-ai/');
+  }
 }
 
-// ═══════════════════════════
+// ═══════════════════════════════════════
 // SCORE
-// ═══════════════════════════
-function calcScore() {
-  var km=S.driveKm, dur=S.sessionMin||1;
-  var avg=S.speedHist.length?Math.round(S.speedHist.reduce(function(a,b){return a+b;},0)/S.speedHist.length):0;
-  var sa=Math.max(0,100-(S.brakingEvt*8)-(S.overSpeedEvt*12));
-  var pe=Math.min(100,60+(avg>10?20:0)+(km>5?20:km*4));
-  var an=Math.max(0,100-(S.brakingEvt/Math.max(dur/5,1))*15);
-  var br=Math.max(0,100-(S.brakingEvt*10));
-  var ec=Math.min(100,Math.max(0,100-(S.overSpeedEvt*8)-(avg>90?15:0)));
-  if(S.weather&&S.weather.prec>0) sa=Math.min(sa+5,100);
-  var fix=function(v){return Math.max(20,Math.min(100,Math.round(v)));};
-  sa=fix(sa);pe=fix(pe);an=fix(an);br=fix(br);ec=fix(ec);
-  var tot=Math.round(sa*.35+pe*.2+an*.2+br*.15+ec*.1);
-  var g=tot>=95?'S':tot>=88?'A+':tot>=80?'A':tot>=70?'B':tot>=60?'C':'D';
-  var tag=tot>=88?'Condus Excelent!':tot>=80?'Condus Foarte Bine!':tot>=70?'Condus Bine!':tot>=60?'Loc de îmbunătățire':'Necesită atenție';
-  return{tot:tot,g:g,tag:tag,sa:sa,pe:pe,an:an,br:br,ec:ec,km:km,dur:dur,avg:avg};
+// ═══════════════════════════════════════
+function calcScore(){
+  const km=S.driveKm,dur=S.sessionMin||1;
+  const avg=S.speedHist.length?Math.round(S.speedHist.reduce((a,b)=>a+b,0)/S.speedHist.length):0;
+  let sa=Math.max(0,100-(S.brakingEvt*8)-(S.overSpeedEvt*12));
+  let pe=Math.min(100,60+(avg>10?20:0)+(km>5?20:km*4));
+  let an=Math.max(0,100-(S.brakingEvt/Math.max(dur/5,1))*15);
+  let br=Math.max(0,100-(S.brakingEvt*10));
+  let ec=Math.min(100,Math.max(0,100-(S.overSpeedEvt*8)-(avg>90?15:0)));
+  if(S.weather?.prec>0)sa=Math.min(sa+5,100);
+  const fix=v=>Math.max(20,Math.min(100,Math.round(v)));
+  [sa,pe,an,br,ec]=[sa,pe,an,br,ec].map(fix);
+  const tot=Math.round(sa*.35+pe*.2+an*.2+br*.15+ec*.1);
+  const g=tot>=95?'S':tot>=88?'A+':tot>=80?'A':tot>=70?'B':tot>=60?'C':'D';
+  const tag=tot>=88?'Condus Excelent!':tot>=80?'Condus Foarte Bine!':tot>=70?'Condus Bine!':tot>=60?'Loc de îmbunătățire':'Necesită atenție';
+  return{tot,g,tag,sa,pe,an,br,ec,km,dur,avg};
 }
 
-function openScore(sc) {
-  if(!sc) sc={tot:0,g:'-',tag:'Completează o cursă!',sa:0,pe:0,an:0,br:0,ec:0,km:0,dur:0,avg:0};
+function openScore(sc){
+  if(!sc)sc={tot:0,g:'-',tag:'Completează o cursă!',sa:0,pe:0,an:0,br:0,ec:0,km:0,dur:0,avg:0};
   document.getElementById('sc-num').textContent=sc.tot||'--';
   document.getElementById('sc-gr').textContent=sc.g;
   document.getElementById('sc-tag').textContent=sc.tag;
-  document.getElementById('sc-lbl').textContent='Sesiune · '+new Date().toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('sc-meta').textContent=sc.km.toFixed(1)+' km · '+sc.dur+' min · v.med '+sc.avg+' km/h';
+  document.getElementById('sc-lbl').textContent=`Sesiune · ${new Date().toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'})}`;
+  document.getElementById('sc-meta').textContent=`${sc.km.toFixed(1)} km · ${sc.dur} min · v.med ${sc.avg} km/h`;
   document.getElementById('ss-km').textContent=sc.km.toFixed(1);
   document.getElementById('ss-dur').textContent=sc.dur;
   document.getElementById('ss-avg').textContent=sc.avg;
@@ -1036,109 +1320,149 @@ function openScore(sc) {
   document.getElementById('ss-br').style.color=S.brakingEvt>3?'var(--warn)':'var(--safe)';
   document.getElementById('ss-wx').textContent=S.weather?S.weather.temp+'°':'--';
   document.getElementById('ss-fuel').textContent=(sc.km*0.072).toFixed(1)+'L';
-  setTimeout(function(){
-    var vals=[sc.sa,sc.pe,sc.an,sc.br,sc.ec];
-    ['s','p','a','b','e'].forEach(function(k,i){
+  setTimeout(()=>{
+    ['s','p','a','b','e'].forEach((k,i)=>{
+      const vals=[sc.sa,sc.pe,sc.an,sc.br,sc.ec];
       document.getElementById('b-'+k).style.width=vals[i]+'%';
       document.getElementById('sc-'+k).textContent=vals[i];
     });
-    var ring=document.getElementById('sc-ring');
-    ring.style.transition='stroke-dashoffset 2s cubic-bezier(.4,0,.2,1)';
-    ring.style.strokeDashoffset=439.8*(1-sc.tot/100);
+    document.getElementById('sc-ring').style.transition='stroke-dashoffset 2s cubic-bezier(.4,0,.2,1)';
+    document.getElementById('sc-ring').style.strokeDashoffset=439.8*(1-sc.tot/100);
   },120);
-  // Tags
-  var tags=document.getElementById('cf-tags');
+  const tags=document.getElementById('cf-tags');
   tags.innerHTML='';
   addTag(tags,S.brakingEvt===0?'✓ Frânare lină':'↑ '+S.brakingEvt+' frânări bruște',S.brakingEvt===0?'tgg':'tgw');
-  if(sc.sa>=85) addTag(tags,'✓ Siguranță ridicată','tgg');
-  if(sc.ec>=80) addTag(tags,'✓ Condus eco','tgg');
-  if(S.dest) addTag(tags,'📍 '+S.dest.name.split(',')[0],'tgg');
-  // Smart feedback
-  var fb=[];
-  if(S.brakingEvt===0) fb.push('Frânare impecabilă pe toată sesiunea.');
-  else fb.push(S.brakingEvt+' frânări bruște — anticipează mai devreme intersecțiile.');
-  if(sc.ec>=80) fb.push('Condus eco-eficient — consum estimat optim.');
-  if(S.weather&&S.weather.prec>0) fb.push('Ai condus în condiții de '+S.weather.desc+' — prudență apreciată!');
+  if(sc.sa>=85)addTag(tags,'✓ Siguranță ridicată','tgg');
+  if(sc.ec>=80)addTag(tags,'✓ Condus eco','tgg');
+  if(S.dest)addTag(tags,'📍 '+S.dest.name.split(',')[0],'tgg');
+  const fb=[];
+  if(S.brakingEvt===0)fb.push('Frânare impecabilă pe toată sesiunea.');
+  else fb.push(`${S.brakingEvt} frânări bruște — anticipează mai devreme intersecțiile.`);
+  if(sc.ec>=80)fb.push('Condus eco-eficient — consum optim.');
+  if(S.weather?.prec>0)fb.push(`Ai condus în condiții de ${S.weather.desc} — prudență apreciată!`);
   fb.push('Continuă să exersezi anticiparea traficului pentru scor maxim.');
   document.getElementById('cf-txt').textContent='"'+fb.join(' ')+'"';
   document.getElementById('score').classList.add('on');
+  document.getElementById('score-badge').classList.add('show');
+  updateLevelUI();
+  renderBadges();
 }
 
-function addTag(el,text,cls){var t=document.createElement('span');t.className='ctg '+cls;t.textContent=text;el.appendChild(t);}
+// ═══════════════════════════════════════
+// PARKING
+// ═══════════════════════════════════════
+async function openParking(){
+  document.getElementById('pkm').classList.add('on');
+  document.getElementById('pk-sub').textContent='Se caută locuri de parcare...';
+  document.getElementById('pk-list').innerHTML='';
+  if(!S.lat){document.getElementById('pk-sub').textContent='GPS necesar';return;}
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=parking&format=json&limit=10&bounded=1&viewbox=${S.lon-.02},${S.lat+.015},${S.lon+.02},${S.lat-.015}&addressdetails=1`,{headers:{'User-Agent':'CoachDrive/v4'}});
+    const data=await r.json();
+    const parks=data.filter(p=>p.type==='parking'||p.type==='multi-storey');
+    if(!parks.length){
+      document.getElementById('pk-sub').textContent='Nicio parcare dedicată — zone posibile:';
+      addPark('Parcare stradală estimată','Stradă adiacentă',0.1,null,null);
+      addPark('Parcare publică','Zonă centrală',0.3,null,null);
+      return;
+    }
+    document.getElementById('pk-sub').textContent=parks.length+' locuri găsite în apropiere';
+    parks.slice(0,5).forEach(p=>{
+      const nm=(p.namedetails?.name)||p.display_name.split(',')[0]||'Parcare';
+      const addr=p.display_name.split(',').slice(1,3).join(',').trim();
+      const dist=hav(S.lat,S.lon,parseFloat(p.lat),parseFloat(p.lon));
+      addPark(nm,addr,dist,parseFloat(p.lat),parseFloat(p.lon));
+    });
+  }catch(e){document.getElementById('pk-sub').textContent='Eroare la căutare';}
+}
+function addPark(name,addr,dist,lat,lon){
+  const el=document.createElement('div');el.className='pki';
+  el.innerHTML=`<div class="pkii">🅿️</div><div><div class="pkin">${esc(name)}</div><div class="pkim">${esc(addr.slice(0,40))}</div></div><div class="pkid">${dist<1?(dist*1000).toFixed(0)+'m':dist.toFixed(2)+'km'}</div>`;
+  if(lat&&lon)el.onclick=()=>{
+    document.getElementById('pkm').classList.remove('on');
+    selectDest({name:'🅿 '+name,addr,lat,lon});
+    showAlert('as','🅿 Navighez spre parcare — sesiunea continuă!');
+  };
+  document.getElementById('pk-list').appendChild(el);
+}
 
-// ═══════════════════════════
-// VOICE TTS
-// ═══════════════════════════
-function tts(text) {
-  if (!window.speechSynthesis) return;
+// ═══════════════════════════════════════
+// VOICE TTS + STT
+// ═══════════════════════════════════════
+function tts(text){
+  if(!window.speechSynthesis)return;
   window.speechSynthesis.cancel();
-  var u = new SpeechSynthesisUtterance(text);
-  u.lang='ro-RO'; u.rate=1.05; u.pitch=0.95;
-  var voices=window.speechSynthesis.getVoices();
-  var ro=voices.find(function(v){return v.lang.startsWith('ro');});
-  if(ro) u.voice=ro;
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='ro-RO';u.rate=1.05;u.pitch=0.95;
+  const ro=window.speechSynthesis.getVoices().find(v=>v.lang.startsWith('ro'));
+  if(ro)u.voice=ro;
   window.speechSynthesis.speak(u);
 }
-var recogn = null;
-function toggleMic() {
-  var btn=document.getElementById('mic-btn');
-  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){alert('Încearcă Chrome pe Android sau Safari pe iOS.');return;}
+let recogn=null;
+function toggleMic(){
+  const btn=document.getElementById('mic-btn');
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){alert('Încearcă Chrome.');return;}
   if(recogn){recogn.stop();recogn=null;btn.textContent='🎙';btn.style.boxShadow='';return;}
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   recogn=new SR();recogn.lang='ro-RO';recogn.continuous=false;recogn.interimResults=false;
-  recogn.onresult=function(e){
-    var txt=e.results[0][0].transcript;
-    document.getElementById('dh-coach').textContent='Tu: "'+txt+'"';
-    var r=voiceReply(txt);
+  recogn.onresult=e=>{
+    const txt=e.results[0][0].transcript;
+    document.getElementById('dh-coach').textContent=`Tu: "${txt}"`;
+    const r=voiceReply(txt);
     document.getElementById('dh-coach').textContent=r;
     tts(r);
     recogn=null;btn.textContent='🎙';btn.style.boxShadow='';
   };
-  recogn.onerror=function(){recogn=null;btn.textContent='🎙';btn.style.boxShadow='';};
+  recogn.onerror=()=>{recogn=null;btn.textContent='🎙';btn.style.boxShadow='';};
   recogn.start();
   btn.textContent='🔴';btn.style.boxShadow='0 0 28px rgba(255,61,0,.5)';
 }
-function voiceReply(t) {
-  var tl=t.toLowerCase();
-  if(tl.includes('parcar')) return 'Apasă butonul Parcare din bara de jos.';
-  if(tl.includes('meteo')||tl.includes('vreme')) return S.weather?S.weather.desc+', '+S.weather.temp+'°C. '+wxAdvice():'Date meteo indisponibile.';
-  if(tl.includes('km')||tl.includes('distanț')) return 'Ai parcurs '+S.driveKm.toFixed(1)+' km.';
-  if(tl.includes('vitez')) return 'Ești la '+S.speed+' km/h. '+(S.speed>80?'Recomand să cobori ușor.':'Viteză bună.');
-  if(tl.includes('destinaț')) return S.dest?'Navighez spre '+S.dest.name+', mai ai '+document.getElementById('dm-r').textContent+'.':'Nicio destinație setată. Caută una din bara de sus.';
+function voiceReply(t){
+  const tl=t.toLowerCase();
+  if(tl.includes('parcar'))return'Apasă butonul Parcare din bara de jos.';
+  if(tl.includes('meteo')||tl.includes('vreme'))return S.weather?`${S.weather.desc}, ${S.weather.temp}°C. ${wxAdvice()}`:'Date meteo indisponibile.';
+  if(tl.includes('km')||tl.includes('distanț'))return`Ai parcurs ${S.driveKm.toFixed(1)} km.`;
+  if(tl.includes('vitez'))return`Ești la ${S.speed} km/h. ${S.speed>80?'Recomand să cobori ușor.':'Viteză bună.'}`;
+  if(tl.includes('scor'))return`Scorul tău live este ${S.liveScore}/100, nota ${document.getElementById('ls-grade').textContent}.`;
+  if(tl.includes('dificult'))return S.dest&&S.routes[S.mode]?`Ruta ${S.mode} are dificultate: ${S.routes[S.mode].diff.label}`.replace('undefined',''):wxAdvice();
   return wxAdvice();
 }
 
-// ═══════════════════════════
+// ═══════════════════════════════════════
 // ALERTS
-// ═══════════════════════════
-function showAlert(cls, text) {
-  var el=document.getElementById('alert'), tx=document.getElementById('alert-txt');
+// ═══════════════════════════════════════
+function showAlert(cls,text){
+  const el=document.getElementById('alert'),tx=document.getElementById('alert-txt');
   el.className=cls+' show';
   tx.textContent=text;
   tx.style.color=cls==='aw'?'var(--warn)':cls==='ad'?'var(--danger)':cls==='as'?'var(--safe)':'var(--info)';
   document.getElementById('a-ico').textContent=cls==='aw'?'⚠️':cls==='ad'?'🚨':cls==='as'?'✅':'ℹ️';
-  var dcOn=document.getElementById('dc').classList.contains('show');
-  el.style.top=dcOn?'158px':'148px';
+  const dcOn=document.getElementById('dc').classList.contains('show');
+  el.style.top=dcOn?'160px':'148px';
   clearTimeout(S.alertTimer);
   S.alertTimer=setTimeout(hideAlert,7000);
 }
 function hideAlert(){document.getElementById('alert').classList.remove('show');}
 
-// ═══════════════════════════
+// ═══════════════════════════════════════
 // UTILS
-// ═══════════════════════════
+// ═══════════════════════════════════════
 function hav(la1,lo1,la2,lo2){
-  var R=6371,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180;
-  var a=Math.sin(dL/2)*Math.sin(dL/2)+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)*Math.sin(dO/2);
+  const R=6371,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180;
+  const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
-function setMsg(msg) {
-  var el=document.getElementById('coach-msg');
+function setMsg(msg){
+  const el=document.getElementById('coach-msg');
   el.style.opacity='0';
-  setTimeout(function(){el.textContent=msg;el.style.transition='opacity .4s';el.style.opacity='1';},200);
+  setTimeout(()=>{el.textContent=msg;el.style.transition='opacity .4s';el.style.opacity='1';},200);
 }
-function setNav(el){document.querySelectorAll('.ni').forEach(function(b){b.classList.remove('active');});el.classList.add('active');}
-function openScore(){document.getElementById('score').classList.add('on');}
+function setNav(el){document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+function addTag(el,text,cls){const t=document.createElement('span');t.className='ctg '+cls;t.textContent=text;el.appendChild(t);}
+
+// Init gamification UI
+updateLevelUI();
+renderBadges();
 </script>
 </body>
 </html>
