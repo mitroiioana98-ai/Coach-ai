@@ -10,503 +10,482 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
-  --safe:#00C853;--sg:rgba(0,200,83,.22);
-  --warn:#FFD600;--wg:rgba(255,214,0,.22);
-  --danger:#FF3D00;--dg:rgba(255,61,0,.22);
-  --info:#00B0FF;--ig:rgba(0,176,255,.18);
-  --perf:#AA00FF;--pg:rgba(170,0,255,.18);
+  --safe:#00C853;--sg:rgba(0,200,83,.2);
+  --warn:#FFD600;--wg:rgba(255,214,0,.2);
+  --danger:#FF3D00;--dg:rgba(255,61,0,.2);
+  --info:#00B0FF;--ig:rgba(0,176,255,.15);
+  --perf:#AA00FF;
   --bg:#0d1520;--panel:#131e2c;--panel2:#192536;
-  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.12);
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.11);
   --t1:#fff;--t2:#b0c4d8;--t3:#4a6480;
   --fd:'Barlow Condensed',sans-serif;--fb:'Barlow',sans-serif;--fm:'JetBrains Mono',monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);background:var(--bg);color:var(--t1)}
+
+/* MAP */
 #map{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
 .mapboxgl-ctrl-bottom-left,.mapboxgl-ctrl-bottom-right{display:none!important}
-.mapboxgl-ctrl-top-right{top:70px!important;right:14px!important}
-.mapboxgl-ctrl-group{background:rgba(19,30,44,.95)!important;border:1px solid var(--b2)!important;border-radius:12px!important}
-.mapboxgl-ctrl-group button{background:transparent!important;color:var(--t2)!important}
+.mapboxgl-ctrl-top-right{top:66px!important;right:12px!important}
+.mapboxgl-ctrl-group{background:rgba(19,30,44,.95)!important;border:1px solid var(--b2)!important;border-radius:12px!important;box-shadow:0 4px 20px rgba(0,0,0,.4)!important}
+.mapboxgl-ctrl-group button{background:transparent!important}
+.mapboxgl-ctrl-group button:hover{background:rgba(255,255,255,.08)!important}
+.mapboxgl-ctrl-geolocate .mapboxgl-ctrl-icon{filter:brightness(2) saturate(0)}
 
-/* ── AUTH SCREEN ── */
-#auth-screen{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;overflow-y:auto}
-.auth-logo{font-family:var(--fd);font-size:44px;font-weight:900;color:var(--safe);text-shadow:0 0 30px var(--sg);letter-spacing:.04em;margin-bottom:4px}
-.auth-logo span{color:var(--t2);font-weight:400}
-.auth-sub{font-size:13px;color:var(--t3);margin-bottom:36px;text-align:center;line-height:1.6}
-.auth-card{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--b2);border-radius:20px;padding:24px;margin-bottom:12px}
-.auth-title{font-family:var(--fd);font-size:18px;font-weight:800;letter-spacing:.04em;margin-bottom:20px;color:var(--t1)}
-.auth-tabs{display:flex;gap:2px;margin-bottom:20px;background:var(--panel2);border-radius:10px;padding:3px}
-.auth-tab{flex:1;padding:8px;border-radius:8px;font-family:var(--fd);font-size:14px;font-weight:700;letter-spacing:.04em;border:none;background:transparent;color:var(--t3);cursor:pointer;transition:all .2s}
-.auth-tab.active{background:var(--safe);color:#000}
-.auth-field{margin-bottom:14px}
-.auth-label{font-size:12px;color:var(--t2);margin-bottom:6px;display:block;font-family:var(--fb)}
-.auth-input{width:100%;padding:12px 14px;background:var(--panel2);border:1px solid var(--b2);border-radius:10px;font-family:var(--fb);font-size:14px;color:var(--t1);outline:none;transition:border-color .2s;-webkit-appearance:none}
-.auth-input:focus{border-color:rgba(0,176,255,.5)}
-.auth-input::placeholder{color:var(--t3)}
-.auth-btn{width:100%;height:48px;background:linear-gradient(135deg,var(--safe),#00a844);border:none;border-radius:12px;font-family:var(--fd);font-size:16px;font-weight:800;letter-spacing:.06em;color:#000;cursor:pointer;margin-top:6px;transition:all .2s;box-shadow:0 4px 20px var(--sg)}
-.auth-btn:active{transform:scale(.97)}
-.auth-btn.secondary{background:var(--panel2);color:var(--t2);border:1px solid var(--b2);box-shadow:none}
-.auth-divider{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--t3);font-size:12px}
-.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--b2)}
-.auth-err{font-size:12px;color:var(--danger);margin-top:8px;text-align:center;font-family:var(--fm)}
-.auth-skip{font-size:12px;color:var(--t3);text-align:center;cursor:pointer;margin-top:8px;text-decoration:underline}
+/* AUTH */
+#auth{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 20px;overflow-y:auto}
+.alogo{font-family:var(--fd);font-size:42px;font-weight:900;color:var(--safe);text-shadow:0 0 28px var(--sg);letter-spacing:.04em;margin-bottom:4px}
+.alogo span{color:var(--t2);font-weight:400}
+.asub{font-size:13px;color:var(--t3);margin-bottom:32px;text-align:center;line-height:1.6}
+.acard{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--b2);border-radius:20px;padding:22px;margin-bottom:12px}
+.atabs{display:flex;gap:2px;margin-bottom:18px;background:var(--panel2);border-radius:10px;padding:3px}
+.atab{flex:1;padding:8px;border-radius:8px;font-family:var(--fd);font-size:14px;font-weight:700;letter-spacing:.04em;border:none;background:transparent;color:var(--t3);cursor:pointer;transition:all .2s}
+.atab.on{background:var(--safe);color:#000}
+.afield{margin-bottom:12px}
+.alabel{font-size:11px;color:var(--t2);margin-bottom:5px;display:block;font-family:var(--fm);letter-spacing:.06em;text-transform:uppercase}
+.ainput{width:100%;padding:12px 14px;background:var(--panel2);border:1px solid var(--b2);border-radius:10px;font-family:var(--fb);font-size:14px;color:var(--t1);outline:none;transition:border-color .2s;-webkit-appearance:none}
+.ainput:focus{border-color:rgba(0,176,255,.5)}
+.ainput::placeholder{color:var(--t3)}
+.abtn{width:100%;height:48px;background:linear-gradient(135deg,var(--safe),#00a844);border:none;border-radius:12px;font-family:var(--fd);font-size:16px;font-weight:800;letter-spacing:.06em;color:#000;cursor:pointer;margin-top:4px;box-shadow:0 4px 18px var(--sg);transition:transform .15s}
+.abtn:active{transform:scale(.97)}
+.aerr{font-size:11px;color:var(--danger);margin-top:8px;text-align:center;font-family:var(--fm)}
+.askip{font-size:12px;color:var(--t3);text-align:center;cursor:pointer;margin-top:6px;text-decoration:underline}
 
-/* ── APP ── */
+/* APP */
 #app{position:fixed;inset:0;z-index:10;pointer-events:none;display:none}
 #app.on{display:block}
 
-.topbar{position:absolute;top:0;left:0;right:0;padding:12px 14px 8px;display:flex;align-items:center;gap:10px;background:linear-gradient(to bottom,rgba(13,21,32,.98) 65%,transparent);pointer-events:all;z-index:20}
-.logo{font-family:var(--fd);font-weight:900;font-size:22px;color:var(--safe);text-shadow:0 0 16px var(--sg);letter-spacing:.04em;flex-shrink:0}
+/* TOP BAR */
+.topbar{position:absolute;top:0;left:0;right:0;padding:10px 12px 8px;display:flex;align-items:center;gap:8px;background:linear-gradient(to bottom,rgba(13,21,32,.98) 60%,transparent);pointer-events:all;z-index:20}
+.logo{font-family:var(--fd);font-weight:900;font-size:21px;color:var(--safe);text-shadow:0 0 14px var(--sg);letter-spacing:.04em;flex-shrink:0}
 .logo span{color:var(--t2);font-weight:400}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--safe),#00a844);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#000;font-family:var(--fd);flex-shrink:0;cursor:pointer;border:2px solid rgba(0,200,83,.3)}
-
-/* SEARCH + START LOCATION */
-.search-row{display:flex;flex-direction:column;gap:6px;flex:1}
-.search-input-wrap{position:relative;display:flex;align-items:center;gap:8px;background:rgba(19,30,44,.97);border:1.5px solid var(--b2);border-radius:14px;padding:9px 36px 9px 12px;transition:border-color .2s;cursor:text}
-.search-input-wrap.focused{border-color:rgba(0,176,255,.5)}
-.search-prefix{font-size:12px;flex-shrink:0}
-.sinput{flex:1;background:transparent;border:none;outline:none;font-size:13px;color:var(--t1);font-family:var(--fb);caret-color:var(--info);min-width:0}
-.sinput::placeholder{color:var(--t3)}
-.sxbtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:14px;cursor:pointer;color:var(--t3);display:none;background:none;border:none}
-.sr{position:absolute;top:calc(100% + 4px);left:0;right:0;background:rgba(15,24,36,.99);border:1.5px solid rgba(0,176,255,.25);border-radius:14px;max-height:260px;overflow-y:auto;display:none;z-index:200;box-shadow:0 20px 60px rgba(0,0,0,.8)}
-.sr.show{display:block}
-.sri{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
+.search-col{flex:1;display:flex;flex-direction:column;gap:5px;position:relative}
+.sinp-wrap{display:flex;align-items:center;gap:8px;background:rgba(19,30,44,.97);border:1.5px solid var(--b2);border-radius:28px;padding:8px 32px 8px 12px;position:relative;transition:border-color .2s}
+.sinp-wrap.focused{border-color:rgba(0,176,255,.5)}
+.dot-start{width:10px;height:10px;border-radius:50%;background:var(--safe);flex-shrink:0;box-shadow:0 0 6px var(--sg)}
+.dot-end{width:10px;height:10px;border-radius:50%;background:var(--danger);flex-shrink:0;box-shadow:0 0 6px var(--dg)}
+.sinp{flex:1;background:transparent;border:none;outline:none;font-size:12px;color:var(--t1);font-family:var(--fb);caret-color:var(--info);min-width:0}
+.sinp::placeholder{color:var(--t3)}
+.sxbtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:13px;cursor:pointer;color:var(--t3);display:none;background:none;border:none}
+/* search dropdown */
+.sdr{position:absolute;top:calc(100% + 3px);left:0;right:0;background:rgba(15,24,36,.99);border:1.5px solid rgba(0,176,255,.25);border-radius:14px;max-height:260px;overflow-y:auto;display:none;z-index:200;box-shadow:0 16px 48px rgba(0,0,0,.8)}
+.sdr.show{display:block}
+.sri{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
 .sri:last-child{border-bottom:none}
 .sri:hover,.sri:active{background:rgba(0,176,255,.07)}
-.sri-ic{width:30px;height:30px;border-radius:8px;background:rgba(0,176,255,.1);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.sri-name{font-size:13px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sri-ic{width:28px;height:28px;border-radius:7px;background:rgba(0,176,255,.1);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.sri-name{font-size:12px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sri-addr{font-size:10px;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sri-d{font-family:var(--fd);font-size:13px;font-weight:700;color:var(--safe);white-space:nowrap;flex-shrink:0;margin-left:auto;padding-left:6px}
-.sr-msg{padding:14px;text-align:center;font-size:12px;color:var(--t3);font-family:var(--fm)}
-.livdot{width:7px;height:7px;border-radius:50%;background:var(--safe);box-shadow:0 0 8px var(--sg);animation:blink 2s ease-in-out infinite;flex-shrink:0}
+.sri-d{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--safe);white-space:nowrap;flex-shrink:0;margin-left:auto;padding-left:6px}
+.sr-msg{padding:12px;text-align:center;font-size:11px;color:var(--t3);font-family:var(--fm)}
+
+/* start options pills */
+.start-opts{display:flex;gap:5px;margin-top:2px}
+.so-pill{padding:5px 10px;border-radius:16px;font-size:10px;font-family:var(--fm);border:1px solid var(--b2);background:var(--panel2);color:var(--t3);cursor:pointer;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:4px}
+.so-pill:active,.so-pill.active{border-color:rgba(0,176,255,.4);color:var(--info);background:rgba(0,176,255,.08)}
+
+.uav{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--safe),#00a844);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#000;font-family:var(--fd);flex-shrink:0;cursor:pointer;border:2px solid rgba(0,200,83,.25)}
+.livdot{width:7px;height:7px;border-radius:50%;background:var(--safe);box-shadow:0 0 7px var(--sg);animation:blink 2s ease-in-out infinite;flex-shrink:0}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* START LOCATION CARD */
-#start-card{position:absolute;top:106px;left:14px;right:14px;background:rgba(19,30,44,.97);border:1px solid rgba(0,176,255,.25);border-radius:18px;padding:12px 14px;display:none;z-index:18;pointer-events:all;backdrop-filter:blur(12px)}
-#start-card.show{display:block}
-.sc-title{font-family:var(--fd);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--info);margin-bottom:10px}
-.sc-options{display:flex;gap:8px}
-.sc-opt{flex:1;padding:10px 6px;border-radius:10px;border:1px solid var(--b2);background:var(--panel2);cursor:pointer;text-align:center;font-size:11px;font-family:var(--fm);color:var(--t3);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px}
-.sc-opt:hover,.sc-opt.active{border-color:rgba(0,176,255,.4);color:var(--info);background:rgba(0,176,255,.08)}
-.sc-opt-ico{font-size:18px}
-.sc-opt-lbl{font-size:9px;letter-spacing:.06em;text-transform:uppercase}
-
 /* ROUTE PILLS */
-.rpills{position:absolute;top:106px;left:14px;right:14px;display:none;gap:6px;z-index:16;pointer-events:all}
+.rpills{position:absolute;top:114px;left:12px;right:12px;display:none;gap:5px;z-index:16;pointer-events:all}
 .rpills.show{display:flex}
-.rpill{flex:1;padding:8px 4px;border-radius:12px;border:1px solid var(--b2);background:rgba(19,30,44,.96);cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .2s;backdrop-filter:blur(10px)}
-.rpill.active{border-color:var(--safe);background:rgba(0,200,83,.1);box-shadow:0 0 14px rgba(0,200,83,.12)}
-.rpill-ico{font-size:17px}
-.rpill-lbl{font-size:9px;font-family:var(--fm);color:var(--t3);letter-spacing:.06em;text-transform:uppercase}
-.rpill-val{font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t2)}
+.rpill{flex:1;padding:7px 4px;border-radius:12px;border:1px solid var(--b2);background:rgba(19,30,44,.96);cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;transition:all .2s;backdrop-filter:blur(10px)}
+.rpill.active{border-color:var(--safe);background:rgba(0,200,83,.09);box-shadow:0 0 12px rgba(0,200,83,.1)}
+.rpill-ico{font-size:15px}
+.rpill-lbl{font-size:9px;font-family:var(--fm);color:var(--t3);letter-spacing:.05em;text-transform:uppercase}
+.rpill-val{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--t2)}
 .rpill.active .rpill-lbl,.rpill.active .rpill-val{color:var(--safe)}
-.rpill-diff{font-size:9px;font-family:var(--fm);padding:1px 5px;border-radius:3px;margin-top:2px}
-.diff-easy{background:rgba(0,200,83,.12);color:var(--safe)}
-.diff-med{background:rgba(255,214,0,.1);color:var(--warn)}
-.diff-hard{background:rgba(255,61,0,.1);color:var(--danger)}
+.rpill-diff{font-size:8px;font-family:var(--fm);padding:1px 5px;border-radius:3px;margin-top:1px}
+.de{background:rgba(0,200,83,.1);color:var(--safe)}.dm{background:rgba(255,214,0,.08);color:var(--warn)}.dh{background:rgba(255,61,0,.08);color:var(--danger)}
 
 /* DEST CARD */
-#dc{position:absolute;top:106px;left:14px;right:14px;background:rgba(19,30,44,.97);border:1px solid rgba(0,200,83,.3);border-radius:18px;padding:12px 14px;display:none;align-items:center;gap:12px;z-index:15;box-shadow:0 4px 30px rgba(0,0,0,.6);pointer-events:all;backdrop-filter:blur(12px)}
+#dc{position:absolute;top:114px;left:12px;right:12px;background:rgba(19,30,44,.97);border:1px solid rgba(0,200,83,.28);border-radius:16px;padding:11px 14px;display:none;align-items:center;gap:11px;z-index:15;box-shadow:0 4px 28px rgba(0,0,0,.5);pointer-events:all}
 #dc.show{display:flex}
-.dc-pin{width:36px;height:36px;border-radius:10px;background:rgba(0,200,83,.12);border:1px solid rgba(0,200,83,.25);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.dc-name{font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dc-addr{font-size:10px;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dc-stats{display:flex;gap:10px;margin-top:5px;align-items:center;flex-wrap:wrap}
-.dc-sv{font-family:var(--fd);font-size:16px;font-weight:800;line-height:1;color:var(--safe)}
-.dc-sl{font-size:9px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:.08em}
-.dc-diff-badge{padding:3px 7px;border-radius:5px;font-size:9px;font-family:var(--fm);font-weight:700;letter-spacing:.05em}
-.dc-x{width:26px;height:26px;border-radius:50%;background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;flex-shrink:0;color:var(--danger)}
+.dcpin{width:34px;height:34px;border-radius:10px;background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.22);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.dcn{font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dca{font-size:10px;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dcs{display:flex;gap:10px;margin-top:4px;align-items:center;flex-wrap:wrap}
+.dcsv{font-family:var(--fd);font-size:15px;font-weight:800;line-height:1;color:var(--safe)}
+.dcsl{font-size:9px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:.07em}
+.dcdb{padding:2px 7px;border-radius:5px;font-size:9px;font-family:var(--fm);font-weight:700}
+.dcx{width:26px;height:26px;border-radius:50%;background:rgba(255,61,0,.08);border:1px solid rgba(255,61,0,.28);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;flex-shrink:0;color:var(--danger)}
 
 /* WEATHER */
-#wcard{position:absolute;top:106px;left:14px;background:rgba(19,30,44,.95);border:1px solid var(--b2);border-radius:18px;padding:10px 13px;display:flex;align-items:center;gap:10px;z-index:10;pointer-events:none;backdrop-filter:blur(12px)}
-.wt{font-family:var(--fd);font-size:22px;font-weight:700;line-height:1;color:var(--warn)}
-.wc{font-size:11px;color:var(--t2)}
-.wd{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em}
-.wbadge{padding:3px 7px;border-radius:4px;font-size:9px;font-family:var(--fm);font-weight:600;margin-top:3px;display:inline-block;letter-spacing:.05em}
-.bwet{background:rgba(0,176,255,.15);color:var(--info);border:1px solid rgba(0,176,255,.3)}
-.bdry{background:rgba(0,200,83,.12);color:var(--safe);border:1px solid rgba(0,200,83,.3)}
-.bsnow{background:rgba(170,0,255,.12);color:#cc88ff;border:1px solid rgba(170,0,255,.3)}
-.bfog{background:rgba(255,214,0,.1);color:var(--warn);border:1px solid rgba(255,214,0,.25)}
+#wcard{position:absolute;top:114px;left:12px;background:rgba(19,30,44,.94);border:1px solid var(--b2);border-radius:16px;padding:9px 12px;display:flex;align-items:center;gap:9px;z-index:10;pointer-events:none}
+.wt{font-family:var(--fd);font-size:20px;font-weight:700;line-height:1;color:var(--warn)}
+.wc{font-size:10px;color:var(--t2)}.wd{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em}
+.wb{padding:2px 6px;border-radius:4px;font-size:9px;font-family:var(--fm);font-weight:600;margin-top:2px;display:inline-block}
+.bwet{background:rgba(0,176,255,.12);color:var(--info);border:1px solid rgba(0,176,255,.28)}
+.bdry{background:rgba(0,200,83,.1);color:var(--safe);border:1px solid rgba(0,200,83,.28)}
+.bsnow{background:rgba(170,0,255,.1);color:#cc88ff;border:1px solid rgba(170,0,255,.28)}
+.bfog{background:rgba(255,214,0,.08);color:var(--warn);border:1px solid rgba(255,214,0,.22)}
 
 /* LIVE SCORE */
-#live-score{position:absolute;top:106px;right:14px;z-index:15;pointer-events:none}
-.ls-ring{width:66px;height:66px;position:relative}
-.ls-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.ls-grade{font-family:var(--fd);font-size:21px;font-weight:900;line-height:1;color:var(--safe)}
-.ls-label{font-size:7px;font-family:var(--fm);color:var(--t3);letter-spacing:.08em;text-transform:uppercase}
+#lscore{position:absolute;top:114px;right:56px;z-index:15;pointer-events:none}
+.lsr{width:58px;height:58px;position:relative}
+.lsi{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;line-height:1}
+.lsg{font-family:var(--fd);font-size:19px;font-weight:900;color:var(--safe)}
+.lsl{font-size:7px;font-family:var(--fm);color:var(--t3);letter-spacing:.07em;text-transform:uppercase}
 
 /* ALERT */
-#alert{position:absolute;left:14px;right:14px;top:182px;padding:10px 14px;border-radius:12px;display:none;align-items:center;gap:10px;z-index:25;cursor:pointer;pointer-events:all;backdrop-filter:blur(10px)}
+#alert{position:absolute;left:12px;right:12px;top:180px;padding:9px 13px;border-radius:12px;display:none;align-items:center;gap:9px;z-index:25;cursor:pointer;pointer-events:all}
 #alert.show{display:flex;animation:adrop .3s ease}
 @keyframes adrop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.aw{background:rgba(255,214,0,.1);border:1px solid rgba(255,214,0,.4)}
-.ad{background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.45)}
-.ai{background:rgba(0,176,255,.08);border:1px solid rgba(0,176,255,.3)}
-.as{background:rgba(0,200,83,.08);border:1px solid rgba(0,200,83,.3)}
+.aw{background:rgba(255,214,0,.09);border:1px solid rgba(255,214,0,.38)}
+.ad{background:rgba(255,61,0,.09);border:1px solid rgba(255,61,0,.42)}
+.ai{background:rgba(0,176,255,.07);border:1px solid rgba(0,176,255,.28)}
+.as{background:rgba(0,200,83,.07);border:1px solid rgba(0,200,83,.28)}
 
 /* TURN BAR */
-#rbar{position:absolute;left:14px;right:14px;top:106px;background:rgba(13,21,32,.97);border:1.5px solid rgba(0,200,83,.35);border-radius:18px;padding:11px 14px;display:none;align-items:center;gap:12px;z-index:14;backdrop-filter:blur(12px)}
+#rbar{position:absolute;left:12px;right:12px;top:114px;background:rgba(13,21,32,.97);border:1.5px solid rgba(0,200,83,.32);border-radius:16px;padding:10px 13px;display:none;align-items:center;gap:11px;z-index:14}
 #rbar.show{display:flex}
-.rba{width:40px;height:40px;border-radius:50%;background:rgba(0,200,83,.1);border:2px solid var(--safe);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.rbi{flex:1}
-.rbs{font-family:var(--fd);font-size:16px;font-weight:700;color:var(--t1)}
-.rbd{font-family:var(--fm);font-size:10px;color:var(--safe);margin-top:2px}
-.rbe{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--t1);flex-shrink:0}
-.rbel{font-size:9px;color:var(--t3);font-family:var(--fm);text-align:right}
+.rba{width:38px;height:38px;border-radius:50%;background:rgba(0,200,83,.09);border:2px solid var(--safe);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.rbi{flex:1}.rbs{font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t1)}
+.rbd{font-family:var(--fm);font-size:10px;color:var(--safe);margin-top:1px}
+.rbe{font-family:var(--fd);font-size:17px;font-weight:800;color:var(--t1);flex-shrink:0}
+.rbel{font-size:8px;color:var(--t3);font-family:var(--fm);text-align:right}
 
 /* COACH */
-.coach{position:absolute;bottom:188px;left:14px;right:14px;background:rgba(13,21,32,.97);border:1.5px solid rgba(0,176,255,.28);border-radius:24px;padding:12px 15px;display:flex;align-items:center;gap:11px;box-shadow:0 0 36px rgba(0,176,255,.08),0 8px 32px rgba(0,0,0,.6);z-index:10;pointer-events:all;backdrop-filter:blur(16px)}
+.coach{position:absolute;bottom:185px;left:12px;right:12px;background:rgba(13,21,32,.97);border:1.5px solid rgba(0,176,255,.25);border-radius:22px;padding:11px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 0 32px rgba(0,176,255,.07),0 8px 28px rgba(0,0,0,.55);z-index:10;pointer-events:all}
 .cav{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#00b0ff,#0055cc);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.clb{font-family:var(--fm);font-size:9px;color:var(--info);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.clb{font-family:var(--fm);font-size:8px;color:var(--info);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
 .cmg{font-family:var(--fd);font-size:14px;font-weight:600;color:var(--t1);line-height:1.35}
 .cwv{display:flex;align-items:center;gap:2px;flex-shrink:0}
 .cwb{width:3px;border-radius:2px;background:var(--info);animation:wv 1.1s ease-in-out infinite}
 .cwb:nth-child(1){animation-delay:0s}.cwb:nth-child(2){animation-delay:.12s}.cwb:nth-child(3){animation-delay:.24s}.cwb:nth-child(4){animation-delay:.36s}
-@keyframes wv{0%,100%{height:4px;opacity:.35}50%{height:16px;opacity:1}}
+@keyframes wv{0%,100%{height:4px;opacity:.3}50%{height:15px;opacity:1}}
 
 /* STATUS BAR */
-#sbar{position:absolute;bottom:76px;left:0;right:0;display:none;gap:1px;background:var(--b1);z-index:5}
+#sbar{position:absolute;bottom:72px;left:0;right:0;display:none;gap:1px;background:var(--b1);z-index:5}
 #sbar.show{display:flex}
-.sbi{flex:1;background:var(--panel);padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.sbv{font-family:var(--fd);font-size:16px;font-weight:700;line-height:1}
-.sbl{font-size:9px;color:var(--t3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em}
+.sbi{flex:1;background:var(--panel);padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.sbv{font-family:var(--fd);font-size:15px;font-weight:700;line-height:1}
+.sbl{font-size:8px;color:var(--t3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.05em}
 
 /* FAB */
-.fab{position:absolute;bottom:84px;right:14px;z-index:15;pointer-events:all}
-.fabt{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--safe),#00a844);border:none;box-shadow:0 6px 28px var(--sg),0 2px 8px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:21px;gap:1px;transition:all .15s}
-.fabt:active{transform:scale(.92)}
+.fab{position:absolute;bottom:82px;right:12px;z-index:15;pointer-events:all}
+.fabt{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--safe),#00a844);border:none;box-shadow:0 5px 24px var(--sg),0 2px 8px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:20px;gap:1px;transition:all .15s}
+.fabt:active{transform:scale(.91)}
 .fablt{font-size:8px;font-family:var(--fd);font-weight:700;color:#000;letter-spacing:.1em}
 
 /* BOTTOM NAV */
-.botnav{position:absolute;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--b2);display:flex;align-items:center;padding:0 4px;height:72px;pointer-events:all;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px)}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 4px;border-radius:8px;cursor:pointer;background:none;border:none;position:relative}
-.ni-i{font-size:21px;color:var(--t3);transition:color .2s}
-.ni-l{font-size:10px;color:var(--t3);font-family:var(--fb);transition:color .2s}
+.botnav{position:absolute;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--b2);display:flex;align-items:center;padding:0 4px;height:68px;pointer-events:all;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 4px;border-radius:8px;cursor:pointer;background:none;border:none}
+.ni-i{font-size:20px;color:var(--t3);transition:color .2s}
+.ni-l{font-size:9px;color:var(--t3);font-family:var(--fb);transition:color .2s}
 .ni.active .ni-i,.ni.active .ni-l{color:var(--safe)}
 
-/* ── DRIVE HUD ── */
+/* DRIVE HUD */
 #dhud{position:fixed;inset:0;z-index:30;display:none;pointer-events:none}
 #dhud.on{display:block}
-.dh-top{padding:14px;display:flex;justify-content:space-between;align-items:flex-start;background:linear-gradient(to bottom,rgba(13,21,32,1) 0%,rgba(13,21,32,.7) 70%,transparent)}
-.dspd{font-family:var(--fd);font-size:80px;font-weight:900;line-height:.85;letter-spacing:-3px;color:var(--safe)}
-.dunit{font-family:var(--fm);font-size:10px;color:var(--t3);letter-spacing:.15em;margin-top:4px}
-.dmid{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 10px}
-.darr{width:46px;height:46px;border-radius:50%;background:rgba(0,200,83,.1);border:2px solid var(--safe);display:flex;align-items:center;justify-content:center;font-size:22px}
-.dstr{font-family:var(--fd);font-size:12px;font-weight:600;color:var(--t2);text-align:center;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dnd{font-family:var(--fm);font-size:10px;color:var(--safe)}
-.dright{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
-.dls-grade{font-family:var(--fd);font-size:32px;font-weight:900;line-height:1;color:var(--safe)}
-.dls-lbl{font-size:8px;font-family:var(--fm);color:var(--t3);letter-spacing:.1em;text-transform:uppercase}
-.deta{font-family:var(--fd);font-size:18px;font-weight:700}
+.dh-top{padding:12px;display:flex;justify-content:space-between;align-items:flex-start;background:linear-gradient(to bottom,rgba(13,21,32,1) 0%,rgba(13,21,32,.7) 70%,transparent)}
+.dspd{font-family:var(--fd);font-size:76px;font-weight:900;line-height:.85;letter-spacing:-3px}
+.dunit{font-family:var(--fm);font-size:9px;color:var(--t3);letter-spacing:.15em;margin-top:3px}
+.dmid{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 8px}
+.darr{width:44px;height:44px;border-radius:50%;background:rgba(0,200,83,.09);border:2px solid var(--safe);display:flex;align-items:center;justify-content:center;font-size:21px}
+.dstr{font-family:var(--fd);font-size:11px;font-weight:600;color:var(--t2);text-align:center;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dnd{font-family:var(--fm);font-size:9px;color:var(--safe)}
+.dright{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.dgr{font-family:var(--fd);font-size:30px;font-weight:900;line-height:1}
+.dgrl{font-size:7px;font-family:var(--fm);color:var(--t3);letter-spacing:.1em;text-transform:uppercase}
+.deta{font-family:var(--fd);font-size:17px;font-weight:700}
 .detal{font-size:8px;color:var(--t3);font-family:var(--fm)}
-.dwx{font-size:11px;color:var(--warn)}
-.dhaz{position:absolute;top:148px;left:14px;right:14px;padding:10px 14px;border-radius:12px;display:none;align-items:center;gap:10px;z-index:32;backdrop-filter:blur(10px)}
+.dwx{font-size:10px;color:var(--warn)}
+/* LIVE METRICS STRIP */
+#dlive{position:absolute;top:148px;left:12px;right:12px;background:rgba(13,21,32,.9);border:1px solid var(--b2);border-radius:14px;padding:8px 4px;display:none;gap:1px;backdrop-filter:blur(10px);z-index:31}
+#dlive.show{display:flex}
+.dlm{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 2px}
+.dlmv{font-family:var(--fd);font-size:16px;font-weight:700;line-height:1}
+.dlml{font-size:8px;color:var(--t3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.05em;text-align:center}
+.dhaz{position:absolute;top:190px;left:12px;right:12px;padding:9px 13px;border-radius:12px;display:none;align-items:center;gap:9px;z-index:32;backdrop-filter:blur(10px)}
 .dhaz.show{display:flex;animation:adrop .3s ease}
-.dcoach{position:absolute;bottom:158px;left:14px;right:14px;background:rgba(13,21,32,.97);border:1.5px solid var(--info);border-radius:24px;padding:12px 16px;display:flex;align-items:center;gap:11px;box-shadow:0 0 36px rgba(0,176,255,.1);backdrop-filter:blur(16px)}
-.dmets{position:absolute;bottom:76px;left:0;right:0;display:flex;gap:1px;background:var(--b1)}
-.dmet{flex:1;background:var(--panel);padding:9px 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.dmv{font-family:var(--fd);font-size:16px;font-weight:700;line-height:1}
-.dml{font-size:9px;color:var(--t3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em}
-.dbot{position:absolute;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--b2);display:flex;align-items:center;padding:0 14px;height:72px;gap:8px;pointer-events:all;padding-bottom:env(safe-area-inset-bottom,0px)}
-.bstop{flex:1;height:44px;background:rgba(255,61,0,.12);border:1px solid rgba(255,61,0,.35);border-radius:12px;font-family:var(--fd);font-size:15px;font-weight:700;color:var(--danger);cursor:pointer}
-.bpark{height:44px;padding:0 12px;background:rgba(170,0,255,.1);border:1px solid rgba(170,0,255,.28);border-radius:12px;font-family:var(--fd);font-size:13px;font-weight:700;color:var(--perf);cursor:pointer}
-.bmic{width:46px;height:46px;border-radius:50%;background:var(--panel2);border:2px solid var(--info);box-shadow:0 0 12px var(--ig);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
+.dcoach{position:absolute;bottom:150px;left:12px;right:12px;background:rgba(13,21,32,.97);border:1.5px solid var(--info);border-radius:22px;padding:11px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 0 32px rgba(0,176,255,.09)}
+.dmets{position:absolute;bottom:68px;left:0;right:0;display:flex;gap:1px;background:var(--b1)}
+.dmet{flex:1;background:var(--panel);padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.dmv{font-family:var(--fd);font-size:15px;font-weight:700;line-height:1}
+.dml{font-size:8px;color:var(--t3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.05em}
+.dbot{position:absolute;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--b2);display:flex;align-items:center;padding:0 12px;height:68px;gap:8px;pointer-events:all;padding-bottom:env(safe-area-inset-bottom,0px)}
+.bstop{flex:1;height:42px;background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.32);border-radius:11px;font-family:var(--fd);font-size:14px;font-weight:700;color:var(--danger);cursor:pointer}
+.bpark{height:42px;padding:0 11px;background:rgba(170,0,255,.09);border:1px solid rgba(170,0,255,.25);border-radius:11px;font-family:var(--fd);font-size:12px;font-weight:700;color:var(--perf);cursor:pointer}
+.bmic{width:44px;height:44px;border-radius:50%;background:var(--panel2);border:2px solid var(--info);box-shadow:0 0 11px var(--ig);display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer}
 
-/* ── HISTORY SCREEN ── */
-#hist-screen{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;flex-direction:column;overflow:hidden}
-#hist-screen.on{display:flex}
-.hist-head{padding:52px 20px 16px;background:linear-gradient(to bottom,var(--panel) 0%,var(--bg) 100%);flex-shrink:0}
-.hist-title{font-family:var(--fd);font-size:28px;font-weight:900;letter-spacing:.03em;margin-bottom:12px}
-.hist-sort{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
-.hist-sort::-webkit-scrollbar{display:none}
-.sort-pill{padding:6px 12px;border-radius:20px;font-size:11px;font-family:var(--fm);border:1px solid var(--b2);background:var(--panel2);color:var(--t3);cursor:pointer;white-space:nowrap;transition:all .2s}
-.sort-pill.active{border-color:var(--safe);color:var(--safe);background:rgba(0,200,83,.08)}
-.hist-back{position:absolute;top:16px;left:16px;width:38px;height:38px;border-radius:50%;background:var(--panel2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer}
-.hist-list{flex:1;overflow-y:auto;padding:0 16px 20px}
-.hist-empty{text-align:center;padding:60px 20px;color:var(--t3);font-family:var(--fm);font-size:13px}
-.hist-item{background:var(--panel);border:1px solid var(--b2);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;transition:border-color .2s}
-.hist-item:hover{border-color:rgba(0,200,83,.3)}
-.hi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.hi-date{font-size:12px;color:var(--t3);font-family:var(--fm)}
-.hi-score{font-family:var(--fd);font-size:28px;font-weight:900;line-height:1}
-.hi-grade{font-family:var(--fd);font-size:14px;font-weight:700}
-.hi-stats{display:flex;gap:14px}
-.hi-stat{display:flex;flex-direction:column;gap:2px}
-.hi-sv{font-family:var(--fd);font-size:16px;font-weight:700;line-height:1;color:var(--t1)}
-.hi-sl{font-size:9px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:.06em}
-.hi-dest{font-size:11px;color:var(--t3);margin-top:8px;display:flex;align-items:center;gap:4px}
-.hi-badges{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
-.hi-badge{padding:2px 7px;border-radius:8px;font-size:9px;font-family:var(--fm);background:rgba(0,200,83,.08);color:var(--safe);border:1px solid rgba(0,200,83,.2)}
-
-/* ── SCORE SHEET ── */
-#score{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;overflow-y:auto;padding-bottom:40px}
+/* SCORE */
+#score{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;overflow-y:auto;padding-bottom:36px}
 #score.on{display:block;animation:sup .4s cubic-bezier(.34,1.2,.64,1)}
 @keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.sc-head{padding:50px 20px 22px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(170,0,255,.12) 0%,transparent 65%);position:relative}
-.sc-back{position:absolute;top:14px;left:16px;width:38px;height:38px;border-radius:50%;background:var(--panel2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer}
-.sc-rw{position:relative;width:150px;height:150px;margin:0 auto 12px}
+.sc-head{padding:48px 18px 20px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(170,0,255,.1) 0%,transparent 60%);position:relative}
+.sc-back{position:absolute;top:12px;left:14px;width:36px;height:36px;border-radius:50%;background:var(--panel2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}
+.sc-rw{position:relative;width:144px;height:144px;margin:0 auto 11px}
 .sc-ri{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center}
-.sc-num{font-family:var(--fd);font-size:48px;font-weight:900;line-height:1;letter-spacing:-2px;background:linear-gradient(135deg,#AA00FF,#ff6ef7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.sc-gr{font-family:var(--fd);font-size:19px;font-weight:700;background:linear-gradient(135deg,#00C853,#00ff87);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.sc-tag{font-family:var(--fd);font-size:24px;font-weight:800;color:var(--t2);margin-bottom:3px}
+.sc-num{font-family:var(--fd);font-size:46px;font-weight:900;line-height:1;letter-spacing:-2px;background:linear-gradient(135deg,#AA00FF,#ff6ef7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sc-gr{font-family:var(--fd);font-size:18px;font-weight:700;background:linear-gradient(135deg,#00C853,#00ff87);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sc-tag{font-family:var(--fd);font-size:22px;font-weight:800;color:var(--t2);margin-bottom:3px}
 .sc-meta{font-size:11px;color:var(--t3)}
-.sec{padding:0 16px;margin-bottom:16px}
-.sett{font-family:var(--fd);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--t3);margin-bottom:8px}
-.card{background:var(--panel);border:1px solid var(--b2);border-radius:16px;overflow:hidden}
+.sec{padding:0 14px;margin-bottom:14px}
+.sett{font-family:var(--fd);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--t3);margin-bottom:7px}
+.card{background:var(--panel);border:1px solid var(--b2);border-radius:15px;overflow:hidden}
 .sgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--b1)}
-.sgi{background:var(--panel);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
-.sgio{font-size:16px}.sgiv{font-family:var(--fd);font-size:16px;font-weight:800}
-.sgil{font-size:9px;color:var(--t3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.06em}
-.birow{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--b1)}
+.sgi{background:var(--panel);padding:11px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.sgio{font-size:15px}.sgiv{font-family:var(--fd);font-size:15px;font-weight:800}
+.sgil{font-size:8px;color:var(--t3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.05em}
+.birow{display:flex;align-items:center;gap:10px;padding:10px 13px;border-bottom:1px solid var(--b1)}
 .birow:last-child{border-bottom:none}
-.biic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.binm{font-size:12px;font-weight:500;color:var(--t1);margin-bottom:4px}
-.bibg{height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;flex:1}
+.biic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.binm{font-size:12px;font-weight:500;color:var(--t1);margin-bottom:3px}
+.bibg{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;flex:1}
 .bif{height:100%;border-radius:2px;transition:width 1.8s cubic-bezier(.4,0,.2,1)}
-.bisc{font-family:var(--fd);font-size:18px;font-weight:800;width:32px;text-align:right;flex-shrink:0}
+.bisc{font-family:var(--fd);font-size:17px;font-weight:800;width:30px;text-align:right;flex-shrink:0}
+.aicard{background:rgba(0,176,255,.04);border:1px solid rgba(0,176,255,.14);border-radius:15px;padding:13px}
+.aih{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.aiav{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#00b0ff,#0055cc);display:flex;align-items:center;justify-content:center;font-size:13px}
+.ait{font-size:12px;color:var(--t2);line-height:1.7;font-style:italic}
+.aitags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.atg{padding:3px 7px;border-radius:10px;font-size:9px;font-family:var(--fm)}
+.tgg{background:rgba(0,200,83,.09);color:var(--safe);border:1px solid rgba(0,200,83,.18)}
+.tgw{background:rgba(255,214,0,.06);color:var(--warn);border:1px solid rgba(255,214,0,.16)}
+.tgd{background:rgba(255,61,0,.06);color:var(--danger);border:1px solid rgba(255,61,0,.16)}
+.sc-acts{display:flex;gap:8px;padding:0 14px;margin-top:4px}
+.bperf{flex:1;height:44px;background:rgba(170,0,255,.09);border:1px solid rgba(170,0,255,.25);border-radius:11px;font-family:var(--fd);font-size:13px;font-weight:700;color:var(--perf);cursor:pointer}
+.bgreen{flex:1;height:44px;background:var(--safe);border:none;border-radius:11px;font-family:var(--fd);font-size:13px;font-weight:700;color:#000;cursor:pointer}
 
-/* AI INSIGHT CARD */
-.ai-insight{background:rgba(0,176,255,.04);border:1px solid rgba(0,176,255,.16);border-radius:16px;padding:14px}
-.ai-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.ai-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00b0ff,#0055cc);display:flex;align-items:center;justify-content:center;font-size:14px}
-.ai-txt{font-size:13px;color:var(--t2);line-height:1.7;font-style:italic}
-.ai-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
-.atg{padding:3px 8px;border-radius:12px;font-size:10px;font-family:var(--fm)}
-.tgg{background:rgba(0,200,83,.1);color:var(--safe);border:1px solid rgba(0,200,83,.2)}
-.tgw{background:rgba(255,214,0,.07);color:var(--warn);border:1px solid rgba(255,214,0,.18)}
-.tgd{background:rgba(255,61,0,.07);color:var(--danger);border:1px solid rgba(255,61,0,.18)}
-
-.sc-acts{display:flex;gap:10px;padding:0 16px;margin-top:4px}
-.bperf{flex:1;height:46px;background:rgba(170,0,255,.1);border:1px solid rgba(170,0,255,.28);border-radius:12px;font-family:var(--fd);font-size:14px;font-weight:700;color:var(--perf);cursor:pointer}
-.bgreen{flex:1;height:46px;background:var(--safe);border:none;border-radius:12px;font-family:var(--fd);font-size:14px;font-weight:700;color:#000;cursor:pointer}
+/* HISTORY */
+#hist{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;flex-direction:column}
+#hist.on{display:flex;animation:sup .4s cubic-bezier(.34,1.2,.64,1)}
+.hh{padding:48px 16px 12px;background:linear-gradient(to bottom,var(--panel) 0%,var(--bg) 100%);flex-shrink:0;position:relative}
+.hh-back{position:absolute;top:12px;left:14px;width:36px;height:36px;border-radius:50%;background:var(--panel2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}
+.hh-title{font-family:var(--fd);font-size:26px;font-weight:900;letter-spacing:.03em;margin-bottom:10px}
+.hh-sort{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.hh-sort::-webkit-scrollbar{display:none}
+.sp{padding:5px 10px;border-radius:16px;font-size:10px;font-family:var(--fm);border:1px solid var(--b2);background:var(--panel2);color:var(--t3);cursor:pointer;white-space:nowrap;transition:all .2s}
+.sp.on{border-color:var(--safe);color:var(--safe);background:rgba(0,200,83,.07)}
+.hl{flex:1;overflow-y:auto;padding:0 14px 16px}
+.he{text-align:center;padding:50px 16px;color:var(--t3);font-family:var(--fm);font-size:12px;line-height:1.8}
+.hi{background:var(--panel);border:1px solid var(--b2);border-radius:14px;padding:14px;margin-bottom:9px;cursor:pointer;transition:border-color .2s}
+.hi:hover{border-color:rgba(0,200,83,.28)}
+.hi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.hi-date{font-size:11px;color:var(--t3);font-family:var(--fm)}
+.hi-sc{font-family:var(--fd);font-size:26px;font-weight:900;line-height:1}
+.hi-gr{font-family:var(--fd);font-size:13px;font-weight:700}
+.hi-stats{display:flex;gap:12px}
+.hi-stat .hi-sv{font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t1)}
+.hi-stat .hi-sl{font-size:8px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:.05em}
+.hi-dest{font-size:10px;color:var(--t3);margin-top:6px}
+.hi-bgs{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.hi-bg{padding:2px 6px;border-radius:7px;font-size:9px;font-family:var(--fm);background:rgba(0,200,83,.07);color:var(--safe);border:1px solid rgba(0,200,83,.18)}
 
 /* PARKING */
-#pkm{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;align-items:flex-end}
+#pkm{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);display:none;align-items:flex-end}
 #pkm.on{display:flex}
-.pkb{width:100%;background:var(--panel);border-radius:24px 24px 0 0;border-top:1px solid var(--b2);padding:18px 18px 36px;animation:sup .35s cubic-bezier(.34,1.2,.64,1)}
-.pkh{width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto 16px}
-.pkt{font-family:var(--fd);font-size:20px;font-weight:800;margin-bottom:3px}
-.pks{font-size:12px;color:var(--t3);margin-bottom:12px}
-.pki{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--panel2);border:1px solid var(--b1);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:border-color .2s}
-.pki:hover{border-color:rgba(170,0,255,.3)}
-.pkii{width:36px;height:36px;border-radius:9px;background:rgba(170,0,255,.1);border:1px solid rgba(170,0,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.pkb{width:100%;background:var(--panel);border-radius:22px 22px 0 0;border-top:1px solid var(--b2);padding:16px 16px 34px;animation:sup .35s cubic-bezier(.34,1.2,.64,1)}
+.pkh{width:34px;height:3px;background:rgba(255,255,255,.14);border-radius:2px;margin:0 auto 14px}
+.pkt{font-family:var(--fd);font-size:19px;font-weight:800;margin-bottom:3px}
+.pks{font-size:11px;color:var(--t3);margin-bottom:11px}
+.pki{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--panel2);border:1px solid var(--b1);border-radius:11px;margin-bottom:7px;cursor:pointer;transition:border-color .2s}
+.pki:hover{border-color:rgba(170,0,255,.28)}
+.pkii{width:34px;height:34px;border-radius:8px;background:rgba(170,0,255,.09);border:1px solid rgba(170,0,255,.16);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .pkin{font-size:13px;font-weight:500;color:var(--t1)}
 .pkim{font-size:10px;color:var(--t3);margin-top:1px}
-.pkid{font-family:var(--fd);font-size:16px;font-weight:700;color:var(--perf);margin-left:auto;flex-shrink:0}
-.pkc{width:100%;height:42px;background:var(--panel2);border:1px solid var(--b2);border-radius:12px;font-family:var(--fd);font-size:14px;font-weight:700;color:var(--t3);cursor:pointer;margin-top:6px}
+.pkid{font-family:var(--fd);font-size:15px;font-weight:700;color:var(--perf);margin-left:auto;flex-shrink:0}
+.pkc{width:100%;height:40px;background:var(--panel2);border:1px solid var(--b2);border-radius:11px;font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t3);cursor:pointer;margin-top:6px}
 
-/* PROFILE DROPDOWN */
-#prof-menu{position:absolute;top:58px;right:14px;background:var(--panel);border:1px solid var(--b2);border-radius:16px;padding:8px;z-index:50;display:none;min-width:160px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
-#prof-menu.show{display:block;animation:adrop .2s ease}
-.pm-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--t2);transition:background .15s}
-.pm-item:hover{background:var(--panel2);color:var(--t1)}
-.pm-item-ico{font-size:16px;width:20px;text-align:center}
-.pm-divider{height:1px;background:var(--b1);margin:4px 0}
+/* PROF MENU */
+#pmenu{position:absolute;top:54px;right:10px;background:var(--panel);border:1px solid var(--b2);border-radius:14px;padding:6px;z-index:50;display:none;min-width:150px;box-shadow:0 8px 28px rgba(0,0,0,.5)}
+#pmenu.show{display:block;animation:adrop .2s ease}
+.pm{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:9px;cursor:pointer;font-size:12px;color:var(--t2);transition:background .15s}
+.pm:hover{background:var(--panel2);color:var(--t1)}
+.pmd{height:1px;background:var(--b1);margin:3px 0}
+
+/* LOADING */
+#loading{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .5s}
+#loading.out{opacity:0;pointer-events:none}
+.ll{font-family:var(--fd);font-size:38px;font-weight:900;color:var(--safe);text-shadow:0 0 26px var(--sg);letter-spacing:.04em}
+.ll span{color:var(--t2);font-weight:400}
+.lbar{width:160px;height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.lfill{height:100%;background:var(--safe);border-radius:2px;animation:lb 1.8s ease forwards}
+@keyframes lb{from{width:0%}to{width:100%}}
+.ltxt{font-family:var(--fm);font-size:10px;color:var(--t3);letter-spacing:.1em}
 
 .gs{background:linear-gradient(135deg,#00C853,#00ff87);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .gp{background:linear-gradient(135deg,#AA00FF,#ff6ef7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .gw{background:linear-gradient(135deg,#FFD600,#ff9800);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .gi{background:linear-gradient(135deg,#00B0FF,#00e5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
-
-/* LOADING OVERLAY */
-#loading{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .5s}
-#loading.hide{opacity:0;pointer-events:none}
-.loading-logo{font-family:var(--fd);font-size:40px;font-weight:900;color:var(--safe);text-shadow:0 0 30px var(--sg);letter-spacing:.04em}
-.loading-logo span{color:var(--t2);font-weight:400}
-.loading-bar-bg{width:180px;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
-.loading-bar-fill{height:100%;background:var(--safe);border-radius:2px;animation:loadbar 2s ease forwards}
-@keyframes loadbar{from{width:0%}to{width:100%}}
-.loading-txt{font-family:var(--fm);font-size:11px;color:var(--t3);letter-spacing:.1em}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="loading">
-  <div class="loading-logo">Coach<span>Drive</span></div>
-  <div class="loading-bar-bg"><div class="loading-bar-fill"></div></div>
-  <div class="loading-txt">SE INIȚIALIZEAZĂ...</div>
+  <div class="ll">Coach<span>Drive</span></div>
+  <div class="lbar"><div class="lfill"></div></div>
+  <div class="ltxt">SE INIȚIALIZEAZĂ...</div>
 </div>
 
 <div id="map"></div>
 
-<!-- AUTH SCREEN -->
-<div id="auth-screen" style="display:none">
-  <div class="auth-logo">Coach<span>Drive</span></div>
-  <div class="auth-sub">Personal Driving Coach · Salvează cursele și progresul tău</div>
-  <div class="auth-card">
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchAuthTab('login')">Intră în cont</button>
-      <button class="auth-tab" onclick="switchAuthTab('register')">Cont nou</button>
+<!-- AUTH -->
+<div id="auth" style="display:none">
+  <div class="alogo">Coach<span>Drive</span></div>
+  <div class="asub">Personal Driving Coach · Salvează cursele și progresul tău</div>
+  <div class="acard">
+    <div class="atabs">
+      <button class="atab on" onclick="authTab('in')">Intră în cont</button>
+      <button class="atab" onclick="authTab('up')">Cont nou</button>
     </div>
-    <div id="auth-login">
-      <div class="auth-field"><label class="auth-label">Email</label><input class="auth-input" id="login-email" type="email" placeholder="email@tau.com" autocomplete="email"/></div>
-      <div class="auth-field"><label class="auth-label">Parolă</label><input class="auth-input" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
-      <button class="auth-btn" onclick="doLogin()">INTRĂ ÎN CONT</button>
-      <div class="auth-err" id="login-err"></div>
+    <div id="tab-in">
+      <div class="afield"><label class="alabel">Email</label><input class="ainput" id="le" type="email" placeholder="email@tau.com" autocomplete="email"/></div>
+      <div class="afield"><label class="alabel">Parolă</label><input class="ainput" id="lp" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
+      <button class="abtn" onclick="doLogin()">INTRĂ ÎN CONT</button>
+      <div class="aerr" id="lerr"></div>
     </div>
-    <div id="auth-register" style="display:none">
-      <div class="auth-field"><label class="auth-label">Nume</label><input class="auth-input" id="reg-name" type="text" placeholder="Prenume Nume" autocomplete="name"/></div>
-      <div class="auth-field"><label class="auth-label">Email</label><input class="auth-input" id="reg-email" type="email" placeholder="email@tau.com" autocomplete="email"/></div>
-      <div class="auth-field"><label class="auth-label">Parolă</label><input class="auth-input" id="reg-pass" type="password" placeholder="min. 6 caractere" autocomplete="new-password"/></div>
-      <button class="auth-btn" onclick="doRegister()">CREEAZĂ CONT</button>
-      <div class="auth-err" id="reg-err"></div>
+    <div id="tab-up" style="display:none">
+      <div class="afield"><label class="alabel">Nume</label><input class="ainput" id="rn" type="text" placeholder="Prenume Nume" autocomplete="name"/></div>
+      <div class="afield"><label class="alabel">Email</label><input class="ainput" id="re" type="email" placeholder="email@tau.com" autocomplete="email"/></div>
+      <div class="afield"><label class="alabel">Parolă</label><input class="ainput" id="rp" type="password" placeholder="min. 6 caractere" autocomplete="new-password"/></div>
+      <button class="abtn" onclick="doRegister()">CREEAZĂ CONT</button>
+      <div class="aerr" id="rerr"></div>
     </div>
   </div>
-  <div class="auth-skip" onclick="skipAuth()">Continuă fără cont →</div>
+  <div class="askip" onclick="skipAuth()">Continuă fără cont →</div>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 <div id="app">
   <div class="topbar">
     <div class="logo">Coach<span>Drive</span></div>
-    <!-- SEARCH COLUMN: START + DEST -->
-    <div class="search-row" style="position:relative">
-      <!-- START LOCATION -->
-      <div class="search-input-wrap" id="start-wrap">
-        <span class="search-prefix">🟢</span>
-        <input class="sinput" id="start-input" placeholder="Locația ta (GPS automat)"
-          autocomplete="off" autocorrect="off"
-          oninput="onStartInput(this.value)"
-          onfocus="showStartOptions()"
-          onblur="setTimeout(()=>document.getElementById('start-sr').classList.remove('show'),250)"/>
-        <button class="sxbtn" id="start-sx" onclick="clearStart()">✕</button>
-        <div class="sr" id="start-sr"></div>
+    <div class="search-col">
+      <!-- START ROW -->
+      <div style="position:relative">
+        <div class="sinp-wrap" id="sw-start">
+          <div class="dot-start"></div>
+          <input class="sinp" id="si-start" placeholder="Start: GPS automat"
+            autocomplete="off" autocorrect="off"
+            oninput="onStartInput(this.value)"
+            onfocus="this.closest('.sinp-wrap').classList.add('focused')"
+            onblur="setTimeout(()=>{this.closest('.sinp-wrap').classList.remove('focused');document.getElementById('sdr-start').classList.remove('show')},250)"/>
+          <button class="sxbtn" id="sx-start" onclick="clearStart()">✕</button>
+        </div>
+        <div class="sdr" id="sdr-start"></div>
       </div>
-      <!-- DESTINATION -->
-      <div class="search-input-wrap" id="dest-wrap">
-        <span class="search-prefix">🔴</span>
-        <input class="sinput" id="dest-input" placeholder="Caută destinație oriunde..."
-          autocomplete="off" autocorrect="off"
-          oninput="onDestInput(this.value)"
-          onfocus="document.getElementById('dest-wrap').classList.add('focused')"
-          onblur="setTimeout(()=>{document.getElementById('dest-wrap').classList.remove('focused');document.getElementById('dest-sr').classList.remove('show')},250)"/>
-        <button class="sxbtn" id="dest-sx" onclick="clearDest()">✕</button>
-        <div class="sr" id="dest-sr"></div>
+      <!-- START OPTIONS -->
+      <div class="start-opts" id="start-opts">
+        <div class="so-pill" id="pill-gps" onclick="useGPS()">📡 GPS live</div>
+        <div class="so-pill" id="pill-pin" onclick="usePin()">📌 Pin pe hartă</div>
+      </div>
+      <!-- DEST ROW -->
+      <div style="position:relative">
+        <div class="sinp-wrap" id="sw-dest">
+          <div class="dot-end"></div>
+          <input class="sinp" id="si-dest" placeholder="Destinație — caută oriunde..."
+            autocomplete="off" autocorrect="off"
+            oninput="onDestInput(this.value)"
+            onfocus="this.closest('.sinp-wrap').classList.add('focused')"
+            onblur="setTimeout(()=>{this.closest('.sinp-wrap').classList.remove('focused');document.getElementById('sdr-dest').classList.remove('show')},250)"/>
+          <button class="sxbtn" id="sx-dest" onclick="clearDest()">✕</button>
+        </div>
+        <div class="sdr" id="sdr-dest"></div>
       </div>
     </div>
-    <!-- USER AVATAR -->
-    <div class="user-avatar" id="user-avatar" onclick="toggleProfMenu()">?</div>
+    <div class="uav" id="uav" onclick="togglePM()">?</div>
+    <div class="livdot"></div>
   </div>
 
-  <!-- PROFILE MENU -->
-  <div id="prof-menu">
-    <div class="pm-item" onclick="openHistory()"><span class="pm-item-ico">📋</span>Istoric curse</div>
-    <div class="pm-item" onclick="openScore()"><span class="pm-item-ico">🏆</span>Ultimul scor</div>
-    <div class="pm-divider"></div>
-    <div class="pm-item" onclick="doLogout()"><span class="pm-item-ico">🚪</span>Deconectare</div>
+  <div id="pmenu">
+    <div class="pm" onclick="openHist()">📋 Istoric curse</div>
+    <div class="pm" onclick="openScore()">🏆 Ultimul scor</div>
+    <div class="pmd"></div>
+    <div class="pm" onclick="doLogout()">🚪 Deconectare</div>
   </div>
 
-  <!-- ROUTE PILLS -->
   <div class="rpills" id="rpills">
     <div class="rpill active" id="pill-fastest" onclick="setMode('fastest')">
       <span class="rpill-ico">⚡</span><span class="rpill-lbl">Rapid</span>
-      <span class="rpill-val" id="pf-val">—</span>
-      <span class="rpill-diff" id="pf-diff">—</span>
+      <span class="rpill-val" id="pf-v">—</span><span class="rpill-diff" id="pf-d">—</span>
     </div>
     <div class="rpill" id="pill-shortest" onclick="setMode('shortest')">
       <span class="rpill-ico">📏</span><span class="rpill-lbl">Scurt</span>
-      <span class="rpill-val" id="ps-val">—</span>
-      <span class="rpill-diff" id="ps-diff">—</span>
+      <span class="rpill-val" id="ps-v">—</span><span class="rpill-diff" id="ps-d">—</span>
     </div>
     <div class="rpill" id="pill-eco" onclick="setMode('eco')">
       <span class="rpill-ico">🌿</span><span class="rpill-lbl">Eco</span>
-      <span class="rpill-val" id="pe-val">—</span>
-      <span class="rpill-diff" id="pe-diff">—</span>
+      <span class="rpill-val" id="pe-v">—</span><span class="rpill-diff" id="pe-d">—</span>
     </div>
   </div>
 
-  <!-- DEST CARD -->
   <div id="dc">
-    <div class="dc-pin">📍</div>
+    <div class="dcpin">📍</div>
     <div style="flex:1;min-width:0">
-      <div class="dc-name" id="dc-name">—</div>
-      <div class="dc-addr" id="dc-addr">—</div>
-      <div class="dc-stats">
-        <div><div class="dc-sv" id="dc-km">—</div><div class="dc-sl">km</div></div>
-        <div><div class="dc-sv" id="dc-min">—</div><div class="dc-sl">min</div></div>
-        <div><div class="dc-sv" id="dc-L">—</div><div class="dc-sl">L est.</div></div>
-        <div class="dc-diff-badge" id="dc-diff-badge">—</div>
+      <div class="dcn" id="dc-name">—</div>
+      <div class="dca" id="dc-addr">—</div>
+      <div class="dcs">
+        <div><div class="dcsv" id="dc-km">—</div><div class="dcsl">km</div></div>
+        <div><div class="dcsv" id="dc-min">—</div><div class="dcsl">min</div></div>
+        <div><div class="dcsv" id="dc-L">—</div><div class="dcsl">L est.</div></div>
+        <div class="dcdb" id="dc-diff">—</div>
       </div>
     </div>
-    <div class="dc-x" onclick="clearDest()">✕</div>
+    <div class="dcx" onclick="clearDest()">✕</div>
   </div>
 
-  <!-- ALERT -->
   <div id="alert" onclick="hideAlert()">
-    <span id="a-ico" style="font-size:18px">ℹ️</span>
-    <span id="alert-txt" style="flex:1;font-size:12px;font-weight:500"></span>
-    <span style="font-size:12px;opacity:.4">✕</span>
+    <span id="a-ico" style="font-size:17px">ℹ️</span>
+    <span id="a-txt" style="flex:1;font-size:11px;font-weight:500"></span>
+    <span style="font-size:11px;opacity:.4">✕</span>
   </div>
 
-  <!-- TURN BAR -->
   <div id="rbar">
     <div class="rba" id="rba">↑</div>
     <div class="rbi"><div class="rbs" id="rbs">—</div><div class="rbd" id="rbd">—</div></div>
     <div><div class="rbe" id="rbe">—</div><div class="rbel">ETA</div></div>
   </div>
 
-  <!-- WEATHER -->
   <div id="wcard">
-    <span id="w-ico" style="font-size:22px">🌤</span>
+    <span id="w-ico" style="font-size:20px">🌤</span>
     <div>
-      <div style="display:flex;align-items:baseline;gap:6px">
+      <div style="display:flex;align-items:baseline;gap:5px">
         <div class="wt" id="w-temp">--°</div>
         <div><div class="wc" id="w-city">—</div><div class="wd" id="w-desc">...</div></div>
       </div>
-      <div class="wbadge bdry" id="w-road">Normal</div>
+      <div class="wb bdry" id="w-road">Normal</div>
     </div>
   </div>
 
-  <!-- LIVE SCORE -->
-  <div id="live-score">
-    <div class="ls-ring">
-      <svg width="66" height="66" viewBox="0 0 66 66">
-        <circle fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="5" cx="33" cy="33" r="28"/>
-        <circle id="ls-arc" fill="none" stroke-width="5" stroke-linecap="round" cx="33" cy="33" r="28"
-          stroke="#00C853" stroke-dasharray="175.9" stroke-dashoffset="175.9"
-          style="transform:rotate(-90deg);transform-origin:33px 33px;transition:stroke-dashoffset .5s,stroke .5s"/>
+  <div id="lscore">
+    <div class="lsr">
+      <svg width="58" height="58" viewBox="0 0 58 58">
+        <circle fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4" cx="29" cy="29" r="24"/>
+        <circle id="ls-arc" fill="none" stroke-width="4" stroke-linecap="round" cx="29" cy="29" r="24"
+          stroke="#00C853" stroke-dasharray="150.8" stroke-dashoffset="150.8"
+          style="transform:rotate(-90deg);transform-origin:29px 29px;transition:stroke-dashoffset .5s,stroke .5s"/>
       </svg>
-      <div class="ls-inner">
-        <div class="ls-grade" id="ls-grade">A</div>
-        <div class="ls-label">STIL</div>
-      </div>
+      <div class="lsi"><div class="lsg" id="ls-g">A</div><div class="lsl">STIL</div></div>
     </div>
   </div>
 
-  <!-- COACH -->
   <div class="coach">
     <div class="cav">🧑‍🏫</div>
     <div style="flex:1;min-width:0">
       <div class="clb">CLAUDIU DAVID · COACH</div>
-      <div class="cmg" id="coach-msg">Se inițializează harta Mapbox...</div>
+      <div class="cmg" id="coach-msg">Se inițializează...</div>
     </div>
     <div class="cwv"><div class="cwb"></div><div class="cwb"></div><div class="cwb"></div><div class="cwb"></div></div>
   </div>
 
-  <!-- STATUS BAR -->
   <div id="sbar">
     <div class="sbi"><div class="sbv gs" id="sb-s">A</div><div class="sbl">Stil</div></div>
     <div class="sbi"><div class="sbv gi" id="sb-k">0 km</div><div class="sbl">Parcurs</div></div>
     <div class="sbi"><div class="sbv gw" id="sb-b">0</div><div class="sbl">Frânări</div></div>
-    <div class="sbi"><div class="sbv" style="color:var(--t2)" id="sb-t">0 min</div><div class="sbl">Durată</div></div>
+    <div class="sbi"><div class="sbv" style="color:var(--t2)" id="sb-t">0:00</div><div class="sbl">Durată</div></div>
   </div>
 
-  <!-- FAB -->
-  <div class="fab">
-    <button class="fabt" onclick="startDrive()">
-      <span style="font-size:22px">▶</span>
-      <span class="fablt">START</span>
-    </button>
-  </div>
+  <div class="fab"><button class="fabt" onclick="startDrive()"><span style="font-size:20px">▶</span><span class="fablt">START</span></button></div>
 
-  <!-- BOTTOM NAV -->
   <div class="botnav">
     <button class="ni active" onclick="setNav(this)"><span class="ni-i">🗺</span><span class="ni-l">Hartă</span></button>
     <button class="ni" onclick="setNav(this);startDrive()"><span class="ni-i">🚗</span><span class="ni-l">Conduc</span></button>
     <button class="ni" onclick="setNav(this);openScore()"><span class="ni-i">🏆</span><span class="ni-l">Scor</span></button>
-    <button class="ni" onclick="setNav(this);openHistory()"><span class="ni-i">📋</span><span class="ni-l">Istoric</span></button>
+    <button class="ni" onclick="setNav(this);openHist()"><span class="ni-i">📋</span><span class="ni-l">Istoric</span></button>
   </div>
 </div>
 
@@ -514,24 +493,36 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
 <div id="dhud">
   <div class="dh-top">
     <div style="display:flex;flex-direction:column;align-items:center">
-      <div class="dspd" id="dh-spd">0</div>
+      <div class="dspd gs" id="dh-spd">0</div>
       <div class="dunit">km/h</div>
     </div>
     <div class="dmid">
       <div class="darr" id="dh-arr">↑</div>
       <div class="dstr" id="dh-str">—</div>
-      <div class="dnd" id="dh-nd">GPS activ</div>
+      <div class="dnd" id="dh-nd">GPS</div>
     </div>
     <div class="dright">
-      <div><div class="dls-grade gs" id="dh-grade">A</div><div class="dls-lbl">STIL LIVE</div></div>
+      <div><div class="dgr gs" id="dh-gr">A</div><div class="dgrl">STIL LIVE</div></div>
       <div><div class="deta" id="dh-dur">0:00</div><div class="detal">DURATĂ</div></div>
       <div class="dwx" id="dh-wx">⌛</div>
     </div>
   </div>
-  <div class="dhaz aw" id="dhaz">
-    <span id="dhaz-i" style="font-size:18px">⚠️</span>
-    <span id="dhaz-t" style="font-size:12px;font-weight:600;flex:1"></span>
+
+  <!-- LIVE METRICS STRIP - real data -->
+  <div id="dlive">
+    <div class="dlm"><div class="dlmv gs" id="dl-spd">0</div><div class="dlml">km/h</div></div>
+    <div class="dlm"><div class="dlmv gi" id="dl-max">0</div><div class="dlml">max km/h</div></div>
+    <div class="dlm"><div class="dlmv gw" id="dl-avg">0</div><div class="dlml">medie</div></div>
+    <div class="dlm"><div class="dlmv" style="color:var(--danger)" id="dl-brake">0</div><div class="dlml">frânări</div></div>
+    <div class="dlm"><div class="dlmv" style="color:var(--perf)" id="dl-accel">0</div><div class="dlml">accel.</div></div>
+    <div class="dlm"><div class="dlmv gs" id="dl-fuel">0.0</div><div class="dlml">L est.</div></div>
   </div>
+
+  <div class="dhaz aw" id="dhaz">
+    <span id="dhaz-i" style="font-size:17px">⚠️</span>
+    <span id="dhaz-t" style="font-size:11px;font-weight:600;flex:1"></span>
+  </div>
+
   <div class="dcoach">
     <div class="cav">🧑‍🏫</div>
     <div style="flex:1;min-width:0">
@@ -540,12 +531,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
     </div>
     <div class="cwv"><div class="cwb"></div><div class="cwb"></div><div class="cwb"></div><div class="cwb"></div></div>
   </div>
+
   <div class="dmets">
     <div class="dmet"><div class="dmv gs" id="dm-s">A</div><div class="dml">Stil</div></div>
     <div class="dmet"><div class="dmv gi" id="dm-k">0 km</div><div class="dml">Parcurs</div></div>
     <div class="dmet"><div class="dmv gw" id="dm-b">0</div><div class="dml">Frânări</div></div>
     <div class="dmet"><div class="dmv" style="color:var(--t2)" id="dm-r">— km</div><div class="dml">Rămas</div></div>
   </div>
+
   <div class="dbot">
     <button class="bstop" onclick="stopDrive()">⏹ OPRIRE</button>
     <button class="bpark" onclick="openParking()">🅿 Parcare</button>
@@ -553,16 +546,16 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
   </div>
 </div>
 
-<!-- SCORE SHEET -->
+<!-- SCORE -->
 <div id="score">
   <div class="sc-head">
     <div class="sc-back" onclick="document.getElementById('score').classList.remove('on')">←</div>
-    <div style="font-family:var(--fm);font-size:10px;color:var(--t3);letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px" id="sc-lbl">Ultima sesiune</div>
+    <div style="font-family:var(--fm);font-size:9px;color:var(--t3);letter-spacing:.16em;text-transform:uppercase;margin-bottom:11px" id="sc-lbl">Ultima sesiune</div>
     <div class="sc-rw">
-      <svg style="transform:rotate(-90deg)" width="150" height="150" viewBox="0 0 150 150">
-        <circle fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="8" cx="75" cy="75" r="66"/>
-        <circle id="sc-ring" fill="none" stroke-width="8" stroke-linecap="round" cx="75" cy="75" r="66"
-          stroke="url(#sg2)" stroke-dasharray="414.7" stroke-dashoffset="414.7"/>
+      <svg style="transform:rotate(-90deg)" width="144" height="144" viewBox="0 0 144 144">
+        <circle fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="7" cx="72" cy="72" r="63"/>
+        <circle id="sc-ring" fill="none" stroke-width="7" stroke-linecap="round" cx="72" cy="72" r="63"
+          stroke="url(#sg2)" stroke-dasharray="395.8" stroke-dashoffset="395.8"/>
         <defs><linearGradient id="sg2" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#AA00FF"/><stop offset="100%" stop-color="#00C853"/>
         </linearGradient></defs>
@@ -573,39 +566,39 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
     <div class="sc-meta" id="sc-meta">Pornește sesiunea</div>
   </div>
   <div class="sec">
-    <div class="sett">Statistici</div>
+    <div class="sett">Statistici reale GPS</div>
     <div class="card">
       <div class="sgrid">
         <div class="sgi"><span class="sgio">🏁</span><div class="sgiv gs" id="ss-km">0</div><div class="sgil">km</div></div>
         <div class="sgi"><span class="sgio">⏱</span><div class="sgiv gi" id="ss-dur">0</div><div class="sgil">min</div></div>
-        <div class="sgi"><span class="sgio">⚡</span><div class="sgiv gw" id="ss-avg">0</div><div class="sgil">km/h med</div></div>
-        <div class="sgi"><span class="sgio">🛑</span><div class="sgiv" id="ss-br" style="color:var(--safe)">0</div><div class="sgil">frânări</div></div>
-        <div class="sgi"><span class="sgio">🌡</span><div class="sgiv gi" id="ss-wx">--</div><div class="sgil">meteo</div></div>
-        <div class="sgi"><span class="sgio">🌿</span><div class="sgiv gs" id="ss-fuel">—</div><div class="sgil">L est.</div></div>
+        <div class="sgi"><span class="sgio">⚡</span><div class="sgiv gw" id="ss-avg">0</div><div class="sgil">km/h med.</div></div>
+        <div class="sgi"><span class="sgio">🏎</span><div class="sgiv" style="color:var(--danger)" id="ss-max">0</div><div class="sgil">km/h max.</div></div>
+        <div class="sgi"><span class="sgio">🛑</span><div class="sgiv" id="ss-br" style="color:var(--safe)">0</div><div class="sgil">frânări bruște</div></div>
+        <div class="sgi"><span class="sgio">🌿</span><div class="sgiv gs" id="ss-fuel">0.0</div><div class="sgil">L estimat</div></div>
       </div>
     </div>
   </div>
   <div class="sec">
-    <div class="sett">Detalii scor AI</div>
+    <div class="sett">Scor detaliat AI</div>
     <div class="card">
-      <div class="birow"><div class="biic" style="background:rgba(0,200,83,.1)">🛡</div><div style="flex:1"><div class="binm">Siguranță</div><div class="bibg"><div class="bif" id="b-s" style="width:0%;background:linear-gradient(90deg,#00C853,#00ff87)"></div></div></div><div class="bisc gs" id="sc-s">--</div></div>
-      <div class="birow"><div class="biic" style="background:rgba(255,214,0,.08)">🛞</div><div style="flex:1"><div class="binm">Frânare lină</div><div class="bibg"><div class="bif" id="b-b" style="width:0%;background:linear-gradient(90deg,#FFD600,#ff9800)"></div></div></div><div class="bisc gw" id="sc-b">--</div></div>
-      <div class="birow"><div class="biic" style="background:rgba(0,176,255,.1)">↩️</div><div style="flex:1"><div class="binm">Viraje line</div><div class="bibg"><div class="bif" id="b-v" style="width:0%;background:linear-gradient(90deg,#00B0FF,#00e5ff)"></div></div></div><div class="bisc gi" id="sc-v">--</div></div>
-      <div class="birow"><div class="biic" style="background:rgba(170,0,255,.1)">⚡</div><div style="flex:1"><div class="binm">Accelerare</div><div class="bibg"><div class="bif" id="b-a" style="width:0%;background:linear-gradient(90deg,#AA00FF,#ff6ef7)"></div></div></div><div class="bisc gp" id="sc-a">--</div></div>
-      <div class="birow"><div class="biic" style="background:rgba(0,200,83,.08)">🌿</div><div style="flex:1"><div class="binm">Eco Drive</div><div class="bibg"><div class="bif" id="b-e" style="width:0%;background:linear-gradient(90deg,#00C853,#69f0ae)"></div></div></div><div class="bisc gs" id="sc-e">--</div></div>
-      <div class="birow"><div class="biic" style="background:rgba(255,214,0,.08)">🧠</div><div style="flex:1"><div class="binm">Anticipare trafic</div><div class="bibg"><div class="bif" id="b-t" style="width:0%;background:linear-gradient(90deg,#FFD600,#AA00FF)"></div></div></div><div class="bisc gw" id="sc-t">--</div></div>
+      <div class="birow"><div class="biic" style="background:rgba(0,200,83,.09)">🛡</div><div style="flex:1"><div class="binm">Siguranță generală</div><div class="bibg"><div class="bif" id="b-sa" style="width:0%;background:linear-gradient(90deg,#00C853,#00ff87)"></div></div></div><div class="bisc gs" id="sc-sa">--</div></div>
+      <div class="birow"><div class="biic" style="background:rgba(255,214,0,.07)">🛞</div><div style="flex:1"><div class="binm">Frânare lină</div><div class="bibg"><div class="bif" id="b-br" style="width:0%;background:linear-gradient(90deg,#FFD600,#ff9800)"></div></div></div><div class="bisc gw" id="sc-br">--</div></div>
+      <div class="birow"><div class="biic" style="background:rgba(0,176,255,.09)">↩️</div><div style="flex:1"><div class="binm">Viraje line</div><div class="bibg"><div class="bif" id="b-vi" style="width:0%;background:linear-gradient(90deg,#00B0FF,#00e5ff)"></div></div></div><div class="bisc gi" id="sc-vi">--</div></div>
+      <div class="birow"><div class="biic" style="background:rgba(170,0,255,.09)">⚡</div><div style="flex:1"><div class="binm">Accelerare progresivă</div><div class="bibg"><div class="bif" id="b-ac" style="width:0%;background:linear-gradient(90deg,#AA00FF,#ff6ef7)"></div></div></div><div class="bisc gp" id="sc-ac">--</div></div>
+      <div class="birow"><div class="biic" style="background:rgba(0,200,83,.07)">🌿</div><div style="flex:1"><div class="binm">Eco Drive</div><div class="bibg"><div class="bif" id="b-ec" style="width:0%;background:linear-gradient(90deg,#00C853,#69f0ae)"></div></div></div><div class="bisc gs" id="sc-ec">--</div></div>
+      <div class="birow"><div class="biic" style="background:rgba(255,214,0,.07)">🧠</div><div style="flex:1"><div class="binm">Anticipare trafic</div><div class="bibg"><div class="bif" id="b-an" style="width:0%;background:linear-gradient(90deg,#FFD600,#AA00FF)"></div></div></div><div class="bisc gw" id="sc-an">--</div></div>
     </div>
   </div>
   <div class="sec">
     <div class="sett">Analiză Coach AI</div>
-    <div class="ai-insight">
-      <div class="ai-h">
-        <div class="ai-av">🧑‍🏫</div>
-        <div><div style="font-family:var(--fm);font-size:9px;color:var(--info);letter-spacing:.12em">CLAUDIU DAVID · ANALIZĂ INTELIGENTĂ</div>
-        <div style="font-size:13px;font-weight:600;color:var(--t1)">Feedback personalizat</div></div>
+    <div class="aicard">
+      <div class="aih">
+        <div class="aiav">🧑‍🏫</div>
+        <div><div style="font-family:var(--fm);font-size:8px;color:var(--info);letter-spacing:.12em">CLAUDIU DAVID · ANALIZĂ BAZATĂ PE DATE GPS REALE</div>
+        <div style="font-size:12px;font-weight:600;color:var(--t1)">Feedback personalizat</div></div>
       </div>
-      <div class="ai-txt" id="ai-txt">Completează o cursă...</div>
-      <div class="ai-tags" id="ai-tags"></div>
+      <div class="ait" id="ai-txt">Completează o cursă...</div>
+      <div class="aitags" id="ai-tags"></div>
     </div>
   </div>
   <div class="sc-acts">
@@ -614,20 +607,22 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
   </div>
 </div>
 
-<!-- HISTORY SCREEN -->
-<div id="hist-screen">
-  <div class="hist-head">
-    <div class="hist-back" onclick="document.getElementById('hist-screen').classList.remove('on')">←</div>
-    <div class="hist-title">📋 Istoric curse</div>
-    <div class="hist-sort" id="hist-sort">
-      <div class="sort-pill active" onclick="sortHistory('date',this)">📅 Dată</div>
-      <div class="sort-pill" onclick="sortHistory('score',this)">🏆 Scor</div>
-      <div class="sort-pill" onclick="sortHistory('km',this)">📏 Distanță</div>
-      <div class="sort-pill" onclick="sortHistory('dur',this)">⏱ Durată</div>
-      <div class="sort-pill" onclick="sortHistory('fuel',this)">🌿 Consum</div>
+<!-- HISTORY -->
+<div id="hist">
+  <div class="hh">
+    <div class="hh-back" onclick="document.getElementById('hist').classList.remove('on')">←</div>
+    <div class="hh-title">📋 Istoric curse</div>
+    <div class="hh-sort" id="hh-sort">
+      <div class="sp on" onclick="sortH('date',this)">📅 Dată</div>
+      <div class="sp" onclick="sortH('score',this)">🏆 Scor</div>
+      <div class="sp" onclick="sortH('km',this)">📏 Distanță</div>
+      <div class="sp" onclick="sortH('dur',this)">⏱ Durată</div>
+      <div class="sp" onclick="sortH('fuel',this)">🌿 Consum</div>
     </div>
   </div>
-  <div class="hist-list" id="hist-list"><div class="hist-empty">Nu ai curse salvate încă.<br>Pornește prima ta sesiune!</div></div>
+  <div class="hl" id="hl">
+    <div class="he">Nu ai curse salvate încă.<br>Pornește prima ta sesiune!</div>
+  </div>
 </div>
 
 <!-- PARKING -->
@@ -642,438 +637,491 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--fb);backgroun
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 // KEYS
-// ═══════════════════════════════════════════════
-mapboxgl.accessToken = 'pk.eyJ1IjoiYWltLW1hcmtldGluZyIsImEiOiJjbXB0emw0dmcwdHhxMnJzZXBiODlsNGVzIn0.5zXZqXICBsSJnR9N1dWrmg';
-const SB_URL = 'https://ysukmaztgznpvdexwrtu.supabase.co';
-const SB_KEY = 'sb_publishable_b1VDF-xiTHs5YFm_YyLZzg_gnfZU3OL';
-const { createClient } = supabase;
-const sb = createClient(SB_URL, SB_KEY);
+// ══════════════════════════════════
+mapboxgl.accessToken='pk.eyJ1IjoiYWltLW1hcmtldGluZyIsImEiOiJjbXB0emw0dmcwdHhxMnJzZXBiODlsNGVzIn0.5zXZqXICBsSJnR9N1dWrmg';
+const SB_URL='https://ysukmaztgznpvdexwrtu.supabase.co';
+const SB_KEY='sb_publishable_b1VDF-xiTHs5YFm_YyLZzg_gnfZU3OL';
+const sb=supabase.createClient(SB_URL,SB_KEY);
 
-// ═══════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════
-const S = {
-  user: null,
-  lat: null, lon: null, speed: 0, heading: 0, accuracy: null,
-  speedHist: [], accelHist: [], brakingEvt: 0, sharpTurns: 0, overSpeedEvt: 0,
-  hardAccelEvt: 0,
-  driveKm: 0, lastPos: null, sessionMin: 0,
-  driving: false, gpsN: 0,
-  weather: null, sessionTimer: null, hazardTimer: null, alertTimer: null,
-  map: null, geoControl: null, userMarker: null, destMarker: null,
-  startLat: null, startLon: null,
-  dest: null,
-  routes: {fastest:null,shortest:null,eco:null},
-  mode: 'fastest', steps: [], stepIdx: 0,
-  totalKm: 0, totalMin: 0, _arrived: false,
-  liveScore: 100,
-  history: [],
-  histSort: 'date',
-  lastSpeed: 0, lastSpeedTime: Date.now(),
+// ══════════════════════════════════
+// STATE — toate datele GPS reale
+// ══════════════════════════════════
+const S={
+  user:null,
+  // GPS
+  lat:null,lon:null,speed:0,heading:0,accuracy:null,
+  lastLat:null,lastLon:null,lastHeading:null,
+  // Driving metrics (real GPS data)
+  speedHist:[],           // km/h per GPS fix
+  speedTimestamps:[],     // timestamps
+  accelValues:[],         // accelerație reală (km/h/s)
+  headingChanges:[],      // schimbări heading (viraje)
+  brakingEvt:0,           // decelerații > 15 km/h/s
+  hardAccelEvt:0,         // accelerații > 18 km/h/s
+  sharpTurnEvt:0,         // viraje > 30 grade în sub 2s
+  overSpeedEvt:0,
+  maxSpeed:0,
+  driveKm:0,
+  fuelUsed:0,             // calculat din distanță + stil
+  sessionSec:0,
+  sessionTimer:null,
+  hazardTimer:null,
+  alertTimer:null,
+  driving:false,
+  gpsN:0,
+  // weather
+  weather:null,
+  // map
+  map:null,
+  geoCtrl:null,
+  destMarker:null,
+  // locations
+  startLat:null,startLon:null,
+  pinMode:false,
+  dest:null,
+  routes:{fastest:null,shortest:null,eco:null},
+  mode:'fastest',
+  steps:[],stepIdx:0,
+  totalKm:0,totalMin:0,
+  _arrived:false,
+  liveScore:100,
+  // data
+  history:[],
+  histSort:'date',
+  lastScore:null,
 };
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════
-window.addEventListener('load', async () => {
-  setTimeout(() => document.getElementById('loading').classList.add('hide'), 2000);
-  setTimeout(async () => {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) {
-      S.user = session.user;
-      launchApp();
-    } else {
-      document.getElementById('auth-screen').style.display = 'flex';
-    }
-  }, 2200);
+// ══════════════════════════════════
+window.addEventListener('load',async()=>{
+  setTimeout(()=>document.getElementById('loading').classList.add('out'),1800);
+  setTimeout(async()=>{
+    const{data:{session}}=await sb.auth.getSession();
+    if(session){S.user=session.user;launch();}
+    else document.getElementById('auth').style.display='flex';
+  },2000);
 });
 
-function launchApp() {
-  document.getElementById('auth-screen').style.display = 'none';
+function launch(){
+  document.getElementById('auth').style.display='none';
   document.getElementById('app').classList.add('on');
   updateUserUI();
   initMap();
-  fetchWeatherByIP();
-  loadHistory();
+  fetchWxByIP();
+  loadHist();
 }
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 // AUTH
-// ═══════════════════════════════════════════════
-function switchAuthTab(tab) {
-  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
-  document.getElementById('auth-login').style.display = tab==='login'?'block':'none';
-  document.getElementById('auth-register').style.display = tab==='register'?'block':'none';
+// ══════════════════════════════════
+function authTab(t){
+  document.querySelectorAll('.atab').forEach((el,i)=>el.classList.toggle('on',(i===0&&t==='in')||(i===1&&t==='up')));
+  document.getElementById('tab-in').style.display=t==='in'?'block':'none';
+  document.getElementById('tab-up').style.display=t==='up'?'block':'none';
 }
-
-async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  const err = document.getElementById('login-err');
-  err.textContent = '';
-  if(!email||!pass){err.textContent='Completează toate câmpurile';return;}
-  const { data, error } = await sb.auth.signInWithPassword({email,password:pass});
-  if(error){err.textContent=error.message;return;}
-  S.user = data.user;
-  launchApp();
+async function doLogin(){
+  const e=document.getElementById('le').value.trim(),p=document.getElementById('lp').value;
+  const er=document.getElementById('lerr');er.textContent='';
+  if(!e||!p){er.textContent='Completează toate câmpurile';return;}
+  const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});
+  if(error){er.textContent=error.message;return;}
+  S.user=data.user;launch();
 }
-
-async function doRegister() {
-  const name = document.getElementById('reg-name').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const pass = document.getElementById('reg-pass').value;
-  const err = document.getElementById('reg-err');
-  err.textContent = '';
-  if(!name||!email||!pass){err.textContent='Completează toate câmpurile';return;}
-  if(pass.length<6){err.textContent='Parola trebuie să aibă minim 6 caractere';return;}
-  const { data, error } = await sb.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
-  if(error){err.textContent=error.message;return;}
-  S.user = data.user;
-  launchApp();
+async function doRegister(){
+  const n=document.getElementById('rn').value.trim(),e=document.getElementById('re').value.trim(),p=document.getElementById('rp').value;
+  const er=document.getElementById('rerr');er.textContent='';
+  if(!n||!e||!p){er.textContent='Completează toate câmpurile';return;}
+  if(p.length<6){er.textContent='Parola min. 6 caractere';return;}
+  const{data,error}=await sb.auth.signUp({email:e,password:p,options:{data:{full_name:n}}});
+  if(error){er.textContent=error.message;return;}
+  S.user=data.user;launch();
 }
+async function doLogout(){await sb.auth.signOut();S.user=null;document.getElementById('app').classList.remove('on');document.getElementById('auth').style.display='flex';document.getElementById('pmenu').classList.remove('show');}
+function skipAuth(){S.user=null;launch();}
+function updateUserUI(){const av=document.getElementById('uav');if(S.user){const n=S.user.user_metadata?.full_name||S.user.email||'?';av.textContent=n[0].toUpperCase();}else av.textContent='👤';}
+function togglePM(){document.getElementById('pmenu').classList.toggle('show');}
+document.addEventListener('click',e=>{if(!e.target.closest('#pmenu')&&!e.target.closest('#uav'))document.getElementById('pmenu').classList.remove('show');});
 
-async function doLogout() {
-  await sb.auth.signOut();
-  S.user = null;
-  document.getElementById('app').classList.remove('on');
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('prof-menu').classList.remove('show');
-}
-
-function skipAuth() {
-  S.user = null;
-  launchApp();
-}
-
-function updateUserUI() {
-  const av = document.getElementById('user-avatar');
-  if(S.user) {
-    const name = S.user.user_metadata?.full_name || S.user.email || '?';
-    av.textContent = name[0].toUpperCase();
-    av.title = name;
-  } else {
-    av.textContent = '👤';
-  }
-}
-
-function toggleProfMenu() {
-  document.getElementById('prof-menu').classList.toggle('show');
-}
-document.addEventListener('click', e => {
-  if(!e.target.closest('#prof-menu')&&!e.target.closest('#user-avatar'))
-    document.getElementById('prof-menu').classList.remove('show');
-});
-
-// ═══════════════════════════════════════════════
-// MAP — Mapbox GL JS + GPS Control
-// ═══════════════════════════════════════════════
-function initMap() {
-  S.map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/navigation-night-v1',
-    center: [26.10, 44.43],
-    zoom: 13,
-    attributionControl: false,
+// ══════════════════════════════════
+// MAP — Mapbox, stil neutru + rută colorată
+// ══════════════════════════════════
+function initMap(){
+  S.map=new mapboxgl.Map({
+    container:'map',
+    // Stil custom: hartă gri neutru, fără culori neon
+    style:'mapbox://styles/mapbox/dark-v11',
+    center:[26.10,44.43],zoom:13,
+    attributionControl:false,
   });
 
-  // *** GPS GEOLOCATE CONTROL — fix principal ***
-  S.geoControl = new mapboxgl.GeolocateControl({
-    positionOptions: { enableHighAccuracy: true },
-    trackUserLocation: true,
-    showUserHeading: true,
-    showAccuracyCircle: true,
+  // GPS control
+  S.geoCtrl=new mapboxgl.GeolocateControl({
+    positionOptions:{enableHighAccuracy:true,timeout:10000},
+    trackUserLocation:true,
+    showUserHeading:true,
+    showAccuracyCircle:false,
   });
-  S.map.addControl(S.geoControl, 'top-right');
+  S.map.addControl(S.geoCtrl,'top-right');
 
-  S.geoControl.on('geolocate', (e) => {
-    S.lat = e.coords.latitude;
-    S.lon = e.coords.longitude;
-    S.accuracy = e.coords.accuracy;
-    S.startLat = S.startLat || S.lat;
-    S.startLon = S.startLon || S.lon;
-    const kmh = e.coords.speed ? Math.round(e.coords.speed * 3.6) : 0;
-    processSpeed(kmh);
-    if(S.gpsN===0) { reverseGeo(S.lat,S.lon); fetchWeather(S.lat,S.lon); }
-    S.gpsN++;
-    updateDistAndTurn();
-  });
+  S.geoCtrl.on('geolocate',onGPS);
+  S.geoCtrl.on('error',()=>setMsg('GPS indisponibil — verifică permisiunile Safari'));
 
-  S.map.on('load', () => {
-    // Traffic layer
-    try {
-      S.map.addSource('traffic', {type:'vector',url:'mapbox://mapbox.mapbox-traffic-v1'});
-      S.map.addLayer({id:'traffic-layer',type:'line',source:'traffic','source-layer':'traffic',
-        paint:{'line-width':3,'line-color':['match',['get','congestion'],'low','#00C853','moderate','#FFD600','heavy','#FF3D00','severe','#AA00FF','#888']}
-      });
-    } catch(e){}
-
-    // Auto-trigger GPS
-    setTimeout(() => { try { S.geoControl.trigger(); } catch(e){} }, 800);
-    setMsg('Hartă Mapbox activă ✓ · Se detectează locația GPS...');
+  S.map.on('load',()=>{
+    // Neutralizează culorile drumurilor — toate gri
+    const roadLayers=['road-street','road-secondary-tertiary','road-primary','road-motorway-trunk',
+      'road-street-low','road-path','road-simple','road-pedestrian'];
+    roadLayers.forEach(l=>{
+      if(S.map.getLayer(l)){
+        S.map.setPaintProperty(l,'line-color','#2a3a4a');
+        S.map.setPaintProperty(l,'line-opacity',0.6);
+      }
+    });
+    // Trigger GPS
+    setTimeout(()=>{try{S.geoCtrl.trigger();}catch(e){}},600);
+    setMsg('Hartă activă ✓ · Apasă 📡 GPS live sau caută o destinație');
   });
 
-  // Pin on map for start location
-  S.map.on('click', (e) => {
-    if(document.getElementById('start-input').dataset.mode === 'pin') {
-      S.startLat = e.lngLat.lat;
-      S.startLon = e.lngLat.lng;
-      document.getElementById('start-input').value = `📍 ${e.lngLat.lat.toFixed(4)}, ${e.lngLat.lng.toFixed(4)}`;
-      document.getElementById('start-input').dataset.mode = '';
-      setMsg('Locație de start setată prin pin pe hartă!');
-      if(S.dest) fetchRouteMapbox(S.dest);
+  // Pin pe hartă
+  S.map.on('click',e=>{
+    if(!S.pinMode)return;
+    S.startLat=e.lngLat.lat;
+    S.startLon=e.lngLat.lng;
+    document.getElementById('si-start').value=`📌 ${e.lngLat.lat.toFixed(5)}, ${e.lngLat.lng.toFixed(5)}`;
+    document.getElementById('sx-start').style.display='block';
+    S.pinMode=false;
+    document.getElementById('pill-pin').classList.remove('active');
+    S.map.getCanvas().style.cursor='';
+    setMsg('Locație start setată prin pin!');
+    if(S.dest)fetchRoute(S.dest);
+  });
+}
+
+// ══════════════════════════════════
+// GPS — date REALE din coords
+// ══════════════════════════════════
+function onGPS(e){
+  const c=e.coords;
+  const lat=c.latitude,lon=c.longitude;
+  const spd=c.speed; // m/s real
+  const hdg=c.heading; // grade, real
+  const acc=c.accuracy;
+  const now=Date.now();
+
+  const kmh=spd!=null&&spd>=0?Math.round(spd*3.6):0;
+  S.lat=lat;S.lon=lon;S.accuracy=acc;
+  if(hdg!=null)S.heading=hdg;
+
+  // ── CALCUL ACCELERAȚIE REALĂ ──
+  if(S.speedTimestamps.length>0){
+    const prevKmh=S.speedHist[S.speedHist.length-1]||0;
+    const prevT=S.speedTimestamps[S.speedTimestamps.length-1];
+    const dt=(now-prevT)/1000; // secunde
+    if(dt>0&&dt<5){
+      const accel=(kmh-prevKmh)/dt; // km/h per secundă
+      S.accelValues.push({a:accel,t:now});
+      if(S.accelValues.length>120)S.accelValues.shift();
+
+      if(S.driving){
+        // FRÂNARE BRUSCĂ: decelerație > 15 km/h/s
+        if(accel<-15){
+          S.brakingEvt++;
+          const km=S.driveKm;
+          addCoachEvent(`⚠️ Frânare bruscă detectată la km ${km.toFixed(1)} — anticipează mai devreme.`,'brake');
+        }
+        // ACCELERARE BRUSCĂ: > 18 km/h/s
+        if(accel>18){
+          S.hardAccelEvt++;
+          addCoachEvent(`⚡ Accelerare bruscă — pornește mai progresiv din semafoare.`,'accel');
+        }
+      }
     }
-  });
-}
-
-function processSpeed(kmh) {
-  const now = Date.now();
-  const dt = (now - S.lastSpeedTime) / 1000;
-  if(dt > 0 && dt < 5) {
-    const accel = (kmh - S.lastSpeed) / dt; // km/h per sec
-    S.accelHist.push(accel);
-    if(S.accelHist.length > 60) S.accelHist.shift();
-    // Hard braking: deceleration > 15 km/h/s
-    if(S.driving && accel < -15) { S.brakingEvt++; document.getElementById('sb-b').textContent=S.brakingEvt; document.getElementById('dm-b').textContent=S.brakingEvt; }
-    // Hard acceleration > 20 km/h/s
-    if(S.driving && accel > 20) { S.hardAccelEvt++; }
   }
-  S.lastSpeed = kmh; S.lastSpeedTime = now;
-  S.speed = kmh; S.speedHist.push(kmh);
-  if(S.speedHist.length > 120) S.speedHist.shift();
-  // Speed display
-  const c = kmh>90?'#FF3D00':kmh>70?'#FFD600':'#00C853';
-  document.getElementById('dh-spd').textContent = kmh;
-  document.getElementById('dh-spd').style.color = c;
-  updateLiveScore();
-}
 
-function updateDistAndTurn() {
-  if(!S.lat) return;
-  if(S.driving && S.lastPos) {
-    const d = hav(S.lastPos.lat,S.lastPos.lon,S.lat,S.lon);
-    if(d>0&&d<0.5){
+  // ── CALCUL VIRAJE REALE ──
+  if(S.lastHeading!=null&&hdg!=null&&S.driving){
+    let delta=Math.abs(hdg-S.lastHeading);
+    if(delta>180)delta=360-delta;
+    if(delta>25){ // viraj semnificativ
+      S.headingChanges.push({d:delta,t:now});
+      if(delta>45){
+        S.sharpTurnEvt++;
+        if(kmh>60)addCoachEvent(`↩️ Viraj brusc la ${kmh}km/h — reduce viteza înainte de a vira.`,'turn');
+      }
+    }
+  }
+  S.lastHeading=hdg;
+
+  // ── ACTUALIZARE SPEED HIST ──
+  S.speedHist.push(kmh);
+  S.speedTimestamps.push(now);
+  if(S.speedHist.length>200){S.speedHist.shift();S.speedTimestamps.shift();}
+  if(kmh>S.maxSpeed)S.maxSpeed=kmh;
+
+  // ── DISTANȚĂ REALĂ ──
+  if(S.lastLat!=null&&S.driving){
+    const d=hav(S.lastLat,S.lastLon,lat,lon);
+    if(d>0&&d<0.3){
       S.driveKm+=d;
-      const km=S.driveKm.toFixed(1)+' km';
-      document.getElementById('sb-k').textContent=km;
-      document.getElementById('dm-k').textContent=km;
+      // Consum estimat: baza 7L/100km + penalizare frânări + accelerări
+      const consumRate=7+(S.brakingEvt*0.15)+(S.hardAccelEvt*0.12);
+      S.fuelUsed=S.driveKm*consumRate/100;
     }
   }
-  S.lastPos={lat:S.lat,lon:S.lon};
+  S.lastLat=lat;S.lastLon=lon;
+
+  // ── UPDATE UI ──
+  const c2=kmh>90?'#FF3D00':kmh>70?'#FFD600':'#00C853';
+  document.getElementById('dh-spd').textContent=kmh;
+  document.getElementById('dh-spd').style.color=c2;
+
+  // Live metrics strip
+  const avgSpd=S.speedHist.length?Math.round(S.speedHist.reduce((a,b)=>a+b,0)/S.speedHist.length):0;
+  document.getElementById('dl-spd').textContent=kmh;
+  document.getElementById('dl-max').textContent=S.maxSpeed;
+  document.getElementById('dl-avg').textContent=avgSpd;
+  document.getElementById('dl-brake').textContent=S.brakingEvt;
+  document.getElementById('dl-accel').textContent=S.hardAccelEvt;
+  document.getElementById('dl-fuel').textContent=S.fuelUsed.toFixed(1);
+
+  // Status bar
+  document.getElementById('sb-k').textContent=S.driveKm.toFixed(1)+' km';
+  document.getElementById('dm-k').textContent=S.driveKm.toFixed(1)+' km';
+
+  // Remaining distance
   if(S.dest){
-    const rem=hav(S.lat,S.lon,S.dest.lat,S.dest.lon);
+    const rem=hav(lat,lon,S.dest.lat,S.dest.lon);
     document.getElementById('dm-r').textContent=rem.toFixed(1)+' km';
-    if(rem<0.1&&S.driving&&!S._arrived){
+    if(rem<0.08&&S.driving&&!S._arrived){
       S._arrived=true;
       showAlert('as','🏁 Ai ajuns! Sesiunea continuă — caută parcare dacă e nevoie.');
       tts('Ai ajuns la destinație! Sesiunea continuă.');
     }
   }
-  // Turn advance
+
+  // Advance turn step
   if(S.driving&&S.steps.length&&S.stepIdx<S.steps.length){
     const loc=S.steps[S.stepIdx]?.maneuver?.location;
-    if(loc&&hav(S.lat,S.lon,loc[1],loc[0])<0.08){S.stepIdx++;updateTurnBar();}
+    if(loc&&hav(lat,lon,loc[1],loc[0])<0.06){S.stepIdx++;updateTurnBar();}
   }
+
+  updateLiveScore();
+  S.gpsN++;
+  if(S.gpsN===1){reverseGeo(lat,lon);fetchWx(lat,lon);}
 }
 
-// ═══════════════════════════════════════════════
-// LIVE SCORE (AI-based, continuu)
-// ═══════════════════════════════════════════════
-function updateLiveScore() {
-  let score = 100;
-  score -= S.brakingEvt * 4;
-  score -= S.hardAccelEvt * 3;
-  score -= S.sharpTurns * 2;
-  score -= S.overSpeedEvt * 6;
-  if(S.weather?.prec>0) score += 3;
-  score = Math.max(20, Math.min(100, Math.round(score)));
-  S.liveScore = score;
-  const grade = score>=95?'S':score>=88?'A+':score>=80?'A':score>=70?'B':score>=60?'C':'D';
-  const color = score>=80?'#00C853':score>=60?'#FFD600':'#FF3D00';
-  document.getElementById('ls-arc').style.strokeDashoffset = 175.9*(1-score/100);
-  document.getElementById('ls-arc').style.stroke = color;
-  document.getElementById('ls-grade').textContent = grade;
-  document.getElementById('ls-grade').style.color = color;
-  document.getElementById('dh-grade').textContent = grade;
-  document.getElementById('dh-grade').style.color = color;
-  document.getElementById('sb-s').textContent = grade;
-  document.getElementById('dm-s').textContent = grade;
+// ══════════════════════════════════
+// LIVE SCORE — calculat din date GPS reale
+// ══════════════════════════════════
+function updateLiveScore(){
+  const dur=S.sessionSec/60||1;
+  let score=100;
+  // Penalizări din date reale
+  score-=Math.min(40,S.brakingEvt*5);      // frânări bruște
+  score-=Math.min(20,S.hardAccelEvt*4);    // accelerări bruște
+  score-=Math.min(15,S.sharpTurnEvt*3);    // viraje bruște
+  score-=Math.min(20,S.overSpeedEvt*6);    // depășiri limită
+  // Bonus ploaie/condiții dificile
+  if(S.weather?.prec>0)score=Math.min(score+5,100);
+  score=Math.max(20,Math.min(100,Math.round(score)));
+  S.liveScore=score;
+  const g=score>=95?'S':score>=88?'A+':score>=80?'A':score>=70?'B':score>=60?'C':'D';
+  const col=score>=80?'#00C853':score>=60?'#FFD600':'#FF3D00';
+  document.getElementById('ls-arc').style.strokeDashoffset=150.8*(1-score/100);
+  document.getElementById('ls-arc').style.stroke=col;
+  document.getElementById('ls-g').textContent=g;document.getElementById('ls-g').style.color=col;
+  document.getElementById('dh-gr').textContent=g;document.getElementById('dh-gr').style.color=col;
+  document.getElementById('sb-s').textContent=g;document.getElementById('dm-s').textContent=g;
 }
 
-// ═══════════════════════════════════════════════
+// Coach event queue (nu spamează)
+let lastCoachEvent={type:'',time:0};
+function addCoachEvent(msg,type){
+  const now=Date.now();
+  if(type===lastCoachEvent.type&&now-lastCoachEvent.time<30000)return; // cooldown 30s per tip
+  lastCoachEvent={type,time:now};
+  document.getElementById('dh-coach').textContent=msg;
+  tts(msg.split('—')[0].trim());
+}
+
+// ══════════════════════════════════
 // START LOCATION
-// ═══════════════════════════════════════════════
-let startSearchT = null;
-function showStartOptions() {
-  document.getElementById('start-wrap').classList.add('focused');
-}
-function onStartInput(val) {
-  document.getElementById('start-sx').style.display = val?'block':'none';
-  clearTimeout(startSearchT);
-  const el = document.getElementById('start-sr');
-  if(val.length<2){el.classList.remove('show');return;}
-  el.classList.add('show');
-  el.innerHTML='<div class="sr-msg">🔍 Se caută...</div>';
-  startSearchT=setTimeout(()=>doSearchFor(val,'start-sr',(item)=>{
-    S.startLat=parseFloat(item.lat);
-    S.startLon=parseFloat(item.lon);
-    document.getElementById('start-input').value=item.display_name.split(',')[0];
-    document.getElementById('start-sr').classList.remove('show');
-    if(S.dest) fetchRouteMapbox(S.dest);
+// ══════════════════════════════════
+let startT=null;
+function onStartInput(v){
+  document.getElementById('sx-start').style.display=v?'block':'none';
+  clearTimeout(startT);
+  const dr=document.getElementById('sdr-start');
+  if(v.length<2){dr.classList.remove('show');return;}
+  dr.classList.add('show');dr.innerHTML='<div class="sr-msg">🔍 Se caută...</div>';
+  startT=setTimeout(()=>doSearch(v,'sdr-start',item=>{
+    S.startLat=parseFloat(item.lat);S.startLon=parseFloat(item.lon);
+    document.getElementById('si-start').value=item.display_name.split(',')[0];
+    document.getElementById('sdr-start').classList.remove('show');
+    if(S.dest)fetchRoute(S.dest);
   }),400);
 }
-function useGPSStart() {
-  if(S.lat){ S.startLat=S.lat; S.startLon=S.lon; document.getElementById('start-input').value='📡 Locația mea GPS'; setMsg('Start din locația GPS curentă!'); if(S.dest)fetchRouteMapbox(S.dest); }
-  else { try{ S.geoControl.trigger(); }catch(e){} setMsg('Se detectează GPS...'); }
+function useGPS(){
+  S.pinMode=false;S.map.getCanvas().style.cursor='';
+  document.getElementById('pill-pin').classList.remove('active');
+  document.getElementById('pill-gps').classList.add('active');
+  try{S.geoCtrl.trigger();}catch(e){}
+  if(S.lat){
+    S.startLat=S.lat;S.startLon=S.lon;
+    document.getElementById('si-start').value='📡 Locația mea GPS';
+    document.getElementById('sx-start').style.display='block';
+    setMsg('Start setat la locația GPS curentă!');
+    if(S.dest)fetchRoute(S.dest);
+  } else {
+    setMsg('Se detectează GPS-ul... Apasă din nou după ce apare punctul albastru.');
+  }
 }
-function usePinStart() {
-  document.getElementById('start-input').dataset.mode='pin';
-  document.getElementById('start-input').value='';
-  document.getElementById('start-input').placeholder='Apasă pe hartă pentru a seta startul...';
-  setMsg('Apasă oriunde pe hartă pentru a seta locul de start.');
+function usePin(){
+  S.pinMode=true;
+  document.getElementById('pill-pin').classList.add('active');
+  document.getElementById('pill-gps').classList.remove('active');
+  S.map.getCanvas().style.cursor='crosshair';
+  setMsg('📌 Apasă pe hartă pentru a seta punctul de start.');
 }
-function clearStart() {
-  S.startLat=null; S.startLon=null;
-  document.getElementById('start-input').value='';
-  document.getElementById('start-sx').style.display='none';
-  document.getElementById('start-input').placeholder='Locația ta (GPS automat)';
+function clearStart(){
+  S.startLat=null;S.startLon=null;S.pinMode=false;
+  S.map.getCanvas().style.cursor='';
+  document.getElementById('si-start').value='';
+  document.getElementById('sx-start').style.display='none';
+  document.getElementById('si-start').placeholder='Start: GPS automat';
+  document.getElementById('pill-gps').classList.remove('active');
+  document.getElementById('pill-pin').classList.remove('active');
 }
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 // DESTINATION SEARCH
-// ═══════════════════════════════════════════════
-let destSearchT = null;
-function onDestInput(val) {
-  document.getElementById('dest-sx').style.display = val?'block':'none';
-  clearTimeout(destSearchT);
-  const el=document.getElementById('dest-sr');
-  if(val.length<2){el.classList.remove('show');return;}
-  el.classList.add('show');
-  el.innerHTML='<div class="sr-msg">🔍 Se caută oriunde în lume...</div>';
-  destSearchT=setTimeout(()=>doSearchFor(val,'dest-sr',(item)=>{
+// ══════════════════════════════════
+let destT=null;
+function onDestInput(v){
+  document.getElementById('sx-dest').style.display=v?'block':'none';
+  clearTimeout(destT);
+  const dr=document.getElementById('sdr-dest');
+  if(v.length<2){dr.classList.remove('show');return;}
+  dr.classList.add('show');dr.innerHTML='<div class="sr-msg">🔍 Se caută oriunde în lume...</div>';
+  destT=setTimeout(()=>doSearch(v,'sdr-dest',item=>{
     selectDest({name:item.display_name.split(',')[0],addr:item.display_name,lat:parseFloat(item.lat),lon:parseFloat(item.lon)});
   }),380);
 }
 
-async function doSearchFor(q, elId, onSelect) {
-  const el=document.getElementById(elId);
-  const lat=S.lat||44.43, lon=S.lon||26.10;
+async function doSearch(q,drId,onSel){
+  const dr=document.getElementById(drId);
+  const lat=S.lat||44.43,lon=S.lon||26.10;
   try{
     const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=7&addressdetails=1&accept-language=ro,en`,
       {headers:{'Accept-Language':'ro,en','User-Agent':'CoachDrive/v5'}});
     const data=await r.json();
-    if(!data.length){el.innerHTML='<div class="sr-msg">Niciun rezultat</div>';return;}
-    el.innerHTML='';
+    if(!data.length){dr.innerHTML='<div class="sr-msg">Niciun rezultat</div>';return;}
+    dr.innerHTML='';
     data.forEach(item=>{
       const name=(item.namedetails?.name)||item.display_name.split(',')[0];
       const addr=item.display_name.split(',').slice(1,3).join(',').trim();
       const dlat=parseFloat(item.lat),dlon=parseFloat(item.lon);
       const d=hav(lat,lon,dlat,dlon);
-      const div=document.createElement('div');
-      div.className='sri';
-      div.innerHTML=`<div class="sri-ic">${placeIco(item.type,item.class)}</div>
+      const div=document.createElement('div');div.className='sri';
+      div.innerHTML=`<div class="sri-ic">${pIco(item.type,item.class)}</div>
         <div style="flex:1;min-width:0"><div class="sri-name">${esc(name)}</div><div class="sri-addr">${esc(addr)}</div></div>
         <div class="sri-d">${d<1?(d*1000).toFixed(0)+'m':d.toFixed(1)+'km'}</div>`;
-      div.onclick=()=>onSelect(item);
-      el.appendChild(div);
+      div.onclick=()=>onSel(item);
+      dr.appendChild(div);
     });
-  }catch(e){el.innerHTML='<div class="sr-msg">Eroare rețea</div>';}
+  }catch(e){dr.innerHTML='<div class="sr-msg">Eroare rețea</div>';}
 }
-
-function placeIco(t,c){const m={restaurant:'🍽',cafe:'☕',hospital:'🏥',school:'🎓',university:'🎓',fuel:'⛽',parking:'🅿️',pharmacy:'💊',supermarket:'🛒',bank:'🏦',hotel:'🏨',airport:'✈️',station:'🚆',church:'⛪',museum:'🏛',park:'🌳'};if(m[t])return m[t];if(c==='highway')return'🛣';if(c==='place'||c==='boundary')return'🏙';if(c==='aeroway')return'✈️';return'📍';}
-function clearDest(){S.dest=null;S.steps=[];S.stepIdx=0;S._arrived=false;S.routes={fastest:null,shortest:null,eco:null};if(S.destMarker){S.destMarker.remove();S.destMarker=null;}try{S.map.removeLayer('route');S.map.removeSource('route');}catch(e){}document.getElementById('dc').classList.remove('show');document.getElementById('rpills').classList.remove('show');document.getElementById('wcard').style.display='flex';document.getElementById('live-score').style.display='block';document.getElementById('rbar').classList.remove('show');document.getElementById('dest-input').value='';document.getElementById('dest-sx').style.display='none';setMsg('Destinație ștearsă. Caută oriunde în lume.');}
+function pIco(t,c){const m={restaurant:'🍽',cafe:'☕',hospital:'🏥',school:'🎓',fuel:'⛽',parking:'🅿️',pharmacy:'💊',supermarket:'🛒',hotel:'🏨',airport:'✈️',station:'🚆',church:'⛪',museum:'🏛',park:'🌳'};if(m[t])return m[t];if(c==='highway')return'🛣';if(c==='place'||c==='boundary')return'🏙';if(c==='aeroway')return'✈️';return'📍';}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ═══════════════════════════════════════════════
-// ROUTING — Mapbox Directions (instant, cu trafic)
-// ═══════════════════════════════════════════════
-async function selectDest(dest) {
-  S.dest=dest; S._arrived=false;
-  document.getElementById('dest-sr').classList.remove('show');
-  document.getElementById('dest-input').value=dest.name;
-  document.getElementById('dest-sx').style.display='block';
+// ══════════════════════════════════
+// ROUTING — Mapbox Directions cu fallback OSRM
+// ══════════════════════════════════
+async function selectDest(dest){
+  S.dest=dest;S._arrived=false;
+  document.getElementById('sdr-dest').classList.remove('show');
+  document.getElementById('si-dest').value=dest.name;
+  document.getElementById('sx-dest').style.display='block';
   document.getElementById('dc-name').textContent=dest.name;
   document.getElementById('dc-addr').textContent=dest.addr.slice(0,55)+(dest.addr.length>55?'...':'');
   document.getElementById('dc').classList.add('show');
   document.getElementById('wcard').style.display='none';
-  document.getElementById('live-score').style.display='none';
+  document.getElementById('lscore').style.display='none';
   // Dest marker
-  if(S.destMarker) S.destMarker.remove();
+  if(S.destMarker)S.destMarker.remove();
   const el=document.createElement('div');
-  el.innerHTML=`<div style="width:28px;height:34px;display:flex;flex-direction:column;align-items:center"><div style="width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#00C853;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,200,83,.5)"></div></div>`;
-  el.style.cssText='width:28px;height:34px;cursor:pointer';
+  el.innerHTML=`<div style="width:26px;height:32px;display:flex;flex-direction:column;align-items:center"><div style="width:22px;height:22px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#00C853;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,200,83,.5)"></div></div>`;
+  el.style.cssText='width:26px;height:32px;cursor:pointer';
   S.destMarker=new mapboxgl.Marker({element:el,anchor:'bottom'}).setLngLat([dest.lon,dest.lat]).addTo(S.map);
+  // Quick estimate
+  if(S.lat){const d=hav(S.lat,S.lon,dest.lat,dest.lon);document.getElementById('dc-km').textContent=d.toFixed(1);document.getElementById('dc-min').textContent=Math.round(d/0.55);document.getElementById('dc-L').textContent=(d*0.07).toFixed(1);}
   setMsg(`Calculez ruta spre ${dest.name}...`);
-  await fetchRouteMapbox(dest);
+  await fetchRoute(dest);
 }
 
-async function fetchRouteMapbox(dest) {
-  const fromLat = S.startLat||S.lat, fromLon = S.startLon||S.lon;
-  if(!fromLat||!dest) return;
+async function fetchRoute(dest){
+  const fromLat=S.startLat||S.lat,fromLon=S.startLon||S.lon;
+  if(!fromLat){setMsg('Setează mai întâi locația de start (📡 GPS sau 📌 Pin)');return;}
+
+  let routeData=null;
+  // Try Mapbox first (trafic real)
   try{
-    const url=`https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${fromLon},${fromLat};${dest.lon},${dest.lat}?geometries=geojson&steps=true&overview=full&access_token=${mapboxgl.accessToken}`;
-    const r=await fetch(url);
+    const r=await fetch(`https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${fromLon},${fromLat};${dest.lon},${dest.lat}?geometries=geojson&steps=true&overview=full&access_token=${mapboxgl.accessToken}`);
     const d=await r.json();
-    if(!d.routes?.length){showAlert('ai','⚠️ Routing indisponibil');return;}
-    const rt=d.routes[0];
-    const km=rt.distance/1000, min=Math.round(rt.duration/60);
-    const steps=rt.legs[0].steps||[];
-    const diff=calcDiff(rt);
-    S.routes.fastest={km,min,geo:rt.geometry,steps,diff};
-    S.routes.shortest={km:km*0.92,min:min+4,geo:rt.geometry,steps,diff:{...diff,score:Math.max(1,diff.score-1)}};
-    S.routes.eco={km:km*0.95,min:min+7,geo:rt.geometry,steps,diff:{label:'Ușor 🟢',score:1,color:'var(--safe)'}};
-    document.getElementById('pf-val').textContent=min+'min';
-    document.getElementById('ps-val').textContent=(km*0.92).toFixed(1)+'km';
-    document.getElementById('pe-val').textContent=(km*0.95*0.072).toFixed(1)+'L';
-    ['pf','ps','pe'].forEach((id,i)=>{
-      const diffs=[S.routes.fastest.diff,S.routes.shortest.diff,S.routes.eco.diff];
-      const el=document.getElementById(id+'-diff');
-      el.textContent=diffs[i].label;
-      el.className='rpill-diff '+(diffs[i].score<=1?'diff-easy':diffs[i].score<=2?'diff-med':'diff-hard');
-    });
-    document.getElementById('rpills').classList.add('show');
-    setMode('fastest');
-    const coords=rt.geometry.coordinates;
-    if(coords.length){
-      const lngs=coords.map(c=>c[0]),lats=coords.map(c=>c[1]);
-      S.map.fitBounds([[Math.min(...lngs),Math.min(...lats)],[Math.max(...lngs),Math.max(...lats)]],{padding:80,duration:1000});
-    }
-    showAlert('as',`🗺 Rută · ${km.toFixed(1)} km · ~${min} min · ${diff.label}`);
-  }catch(e){
-    // Fallback OSRM
+    if(d.routes?.length)routeData={km:d.routes[0].distance/1000,min:Math.round(d.routes[0].duration/60),geo:d.routes[0].geometry,steps:d.routes[0].legs[0].steps||[]};
+  }catch(e){}
+
+  // Fallback OSRM
+  if(!routeData){
     try{
-      const fromLat2=S.startLat||S.lat,fromLon2=S.startLon||S.lon;
-      const r2=await fetch(`https://router.project-osrm.org/route/v1/driving/${fromLon2},${fromLat2};${dest.lon},${dest.lat}?overview=full&geometries=geojson&steps=true`);
-      const d2=await r2.json();
-      if(d2.routes?.length){
-        const rt2=d2.routes[0];
-        const km2=rt2.distance/1000,min2=Math.round(rt2.duration/60);
-        const diff2=calcDiff(rt2);
-        S.routes.fastest={km:km2,min:min2,geo:rt2.geometry,steps:rt2.legs[0].steps||[],diff:diff2};
-        S.routes.shortest={km:km2*0.92,min:min2+4,geo:rt2.geometry,steps:rt2.legs[0].steps||[],diff:{...diff2,score:Math.max(1,diff2.score-1)}};
-        S.routes.eco={km:km2*0.95,min:min2+7,geo:rt2.geometry,steps:rt2.legs[0].steps||[],diff:{label:'Ușor 🟢',score:1,color:'var(--safe)'}};
-        document.getElementById('pf-val').textContent=min2+'min';
-        document.getElementById('ps-val').textContent=(km2*0.92).toFixed(1)+'km';
-        document.getElementById('pe-val').textContent=(km2*0.95*0.072).toFixed(1)+'L';
-        document.getElementById('rpills').classList.add('show');
-        setMode('fastest');
-        showAlert('as',`🗺 Rută (OSRM) · ${km2.toFixed(1)} km · ~${min2} min`);
-      }
-    }catch(e2){showAlert('ad','Routing indisponibil. Verifică conexiunea.');}
+      const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${fromLon},${fromLat};${dest.lon},${dest.lat}?overview=full&geometries=geojson&steps=true`);
+      const d=await r.json();
+      if(d.routes?.length)routeData={km:d.routes[0].distance/1000,min:Math.round(d.routes[0].duration/60),geo:d.routes[0].geometry,steps:d.routes[0].legs[0].steps||[]};
+    }catch(e){}
   }
+
+  if(!routeData){showAlert('ad','⚠️ Routing indisponibil — verifică conexiunea');return;}
+
+  const{km,min,geo,steps}=routeData;
+  const diff=calcDiff(km,steps);
+  S.routes.fastest={km,min,geo,steps,diff};
+  S.routes.shortest={km:km*0.92,min:min+4,geo,steps,diff:{...diff,score:Math.max(1,diff.score-1)}};
+  S.routes.eco={km:km*0.95,min:min+7,geo,steps,diff:{label:'Ușor 🟢',score:1,color:'var(--safe)'}};
+
+  document.getElementById('pf-v').textContent=min+'min';
+  document.getElementById('ps-v').textContent=(km*0.92).toFixed(1)+'km';
+  document.getElementById('pe-v').textContent=(km*0.95*0.07).toFixed(1)+'L';
+  ['pf','ps','pe'].forEach((id,i)=>{
+    const diffs=[S.routes.fastest.diff,S.routes.shortest.diff,S.routes.eco.diff];
+    const el=document.getElementById(id+'-d');
+    el.textContent=diffs[i].label;
+    el.className='rpill-diff '+(diffs[i].score<=1?'de':diffs[i].score<=2?'dm':'dh');
+  });
+
+  document.getElementById('rpills').classList.add('show');
+  setMode('fastest');
+
+  // Fit map to route
+  const coords=geo.coordinates;
+  if(coords.length){
+    const lngs=coords.map(c=>c[0]),lats=coords.map(c=>c[1]);
+    S.map.fitBounds([[Math.min(...lngs),Math.min(...lats)],[Math.max(...lngs),Math.max(...lats)]],{padding:80,duration:1000});
+  }
+  showAlert('as',`🗺 Rută · ${km.toFixed(1)} km · ~${min} min · ${diff.label}`);
 }
 
-function calcDiff(rt){
-  let score=0;
-  const km=rt.distance/1000,turns=(rt.legs[0].steps||[]).filter(s=>s.maneuver?.type==='turn').length;
-  if(km>50)score+=2;else if(km>20)score+=1;
-  if(turns>15)score+=2;else if(turns>8)score+=1;
-  if(S.weather){if(S.weather.prec>2)score+=2;else if(S.weather.prec>0)score+=1;if(S.weather.code>=71&&S.weather.code<=77)score+=2;}
-  const h=new Date().getHours();if((h>=7&&h<=9)||(h>=17&&h<=19))score+=1;
-  if(score<=1)return{label:'Ușor 🟢',score:1,color:'var(--safe)'};
-  if(score<=3)return{label:'Moderat 🟡',score:2,color:'var(--warn)'};
-  if(score<=5)return{label:'Dificil 🟠',score:3,color:'var(--danger)'};
+function calcDiff(km,steps){
+  let s=0;
+  const turns=steps.filter(st=>st.maneuver?.type==='turn').length;
+  if(km>50)s+=2;else if(km>20)s+=1;
+  if(turns>15)s+=2;else if(turns>8)s+=1;
+  if(S.weather){if(S.weather.prec>2)s+=2;else if(S.weather.prec>0)s+=1;if(S.weather.code>=71&&S.weather.code<=77)s+=2;}
+  const h=new Date().getHours();if((h>=7&&h<=9)||(h>=17&&h<=19))s+=1;
+  if(s<=1)return{label:'Ușor 🟢',score:1,color:'var(--safe)'};
+  if(s<=3)return{label:'Moderat 🟡',score:2,color:'var(--warn)'};
+  if(s<=5)return{label:'Dificil 🟠',score:3,color:'var(--danger)'};
   return{label:'Expert 🔴',score:4,color:'var(--danger)'};
 }
 
@@ -1084,119 +1132,152 @@ function setMode(mode){
   S.totalKm=rt.km;S.totalMin=rt.min;S.steps=rt.steps;S.stepIdx=0;
   document.getElementById('dc-km').textContent=rt.km.toFixed(1);
   document.getElementById('dc-min').textContent=rt.min;
-  document.getElementById('dc-L').textContent=(rt.km*0.072).toFixed(1);
-  const db=document.getElementById('dc-diff-badge');
-  db.textContent=rt.diff.label;db.style.background=rt.diff.score<=1?'rgba(0,200,83,.1)':rt.diff.score<=2?'rgba(255,214,0,.08)':'rgba(255,61,0,.08)';
-  db.style.color=rt.diff.color;db.style.border=`1px solid ${rt.diff.color}44`;
-  try{S.map.removeLayer('route');S.map.removeSource('route');}catch(e){}
-  S.map.addSource('route',{type:'geojson',data:{type:'Feature',geometry:rt.geo}});
-  S.map.addLayer({id:'route',type:'line',source:'route',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#00C853','line-width':5,'line-opacity':.9}});
+  document.getElementById('dc-L').textContent=(rt.km*0.07).toFixed(1);
+  const db=document.getElementById('dc-diff');
+  db.textContent=rt.diff.label;
+  db.style.cssText=`background:${rt.diff.score<=1?'rgba(0,200,83,.1)':rt.diff.score<=2?'rgba(255,214,0,.08)':'rgba(255,61,0,.08)'};color:${rt.diff.color};border:1px solid ${rt.diff.color}33;padding:2px 7px;border-radius:5px;font-size:9px;font-family:var(--fm);font-weight:700`;
+
+  // ── RUTA VERDE, restul drumurilor GRI ──
+  try{S.map.removeLayer('route-line');S.map.removeLayer('route-glow');S.map.removeSource('route-src');}catch(e){}
+  S.map.addSource('route-src',{type:'geojson',data:{type:'Feature',geometry:rt.geo}});
+  // Glow subtil sub rută
+  S.map.addLayer({id:'route-glow',type:'line',source:'route-src',
+    layout:{'line-join':'round','line-cap':'round'},
+    paint:{'line-color':'#00C853','line-width':10,'line-opacity':0.15,'line-blur':4}
+  });
+  // Ruta principală verde
+  S.map.addLayer({id:'route-line',type:'line',source:'route-src',
+    layout:{'line-join':'round','line-cap':'round'},
+    paint:{'line-color':'#00C853','line-width':4,'line-opacity':0.95}
+  });
+
   updateTurnBar();
-  setMsg({fastest:`Ruta rapidă: ${rt.km.toFixed(1)}km, ~${rt.min}min. Dificultate: ${rt.diff.label}. ${wxAdvice()}`,
-    shortest:`Ruta scurtă: ${rt.km.toFixed(1)}km. Dificultate: ${rt.diff.label}.`,
-    eco:`Ruta eco: ${(rt.km*0.072).toFixed(1)}L estimat, ~${rt.min}min.`}[mode]);
+  setMsg({
+    fastest:`Ruta rapidă: ${rt.km.toFixed(1)}km · ~${rt.min}min · ${rt.diff.label}. ${wxAdvice()}`,
+    shortest:`Ruta scurtă: ${rt.km.toFixed(1)}km · ~${rt.min}min.`,
+    eco:`Ruta eco: ~${(rt.km*0.07).toFixed(1)}L · ~${rt.min}min.`
+  }[mode]);
 }
 
 function updateTurnBar(){
   if(!S.steps.length||S.stepIdx>=S.steps.length){document.getElementById('rbar').classList.remove('show');return;}
   const st=S.steps[S.stepIdx];
   const dm=st.distance>1000?(st.distance/1000).toFixed(1)+'km':Math.round(st.distance)+'m';
-  const arr=mArrow(st.maneuver?.modifier,st.maneuver?.type);
-  const rem=Math.max(0,S.totalMin-(S.sessionMin||0));
-  document.getElementById('rba').textContent=arr;
-  document.getElementById('rbs').textContent=st.name||'Continuă';
-  document.getElementById('rbd').textContent='în '+dm;
-  document.getElementById('rbe').textContent=rem>0?rem+' min':'🏁';
+  const arr=mArr(st.maneuver?.modifier,st.maneuver?.type);
+  const rem=Math.max(0,S.totalMin-Math.floor(S.sessionSec/60));
+  document.getElementById('rba').textContent=arr;document.getElementById('rbs').textContent=st.name||'Continuă';
+  document.getElementById('rbd').textContent='în '+dm;document.getElementById('rbe').textContent=rem>0?rem+' min':'🏁';
   document.getElementById('rbar').classList.add('show');
-  document.getElementById('dh-arr').textContent=arr;
-  document.getElementById('dh-str').textContent=st.name||'Continuă';
+  document.getElementById('dh-arr').textContent=arr;document.getElementById('dh-str').textContent=st.name||'Continuă';
   document.getElementById('dh-nd').textContent='în '+dm;
 }
-function mArrow(mod,type){if(type==='arrive')return'🏁';if(type==='depart')return'▲';const m={'straight':'↑','slight left':'↖','left':'←','sharp left':'↩','slight right':'↗','right':'→','sharp right':'↪','uturn':'↺'};return m[mod]||'↑';}
+function mArr(mod,type){if(type==='arrive')return'🏁';if(type==='depart')return'▲';const m={'straight':'↑','slight left':'↖','left':'←','sharp left':'↩','slight right':'↗','right':'→','sharp right':'↪','uturn':'↺'};return m[mod]||'↑';}
 
-// ═══════════════════════════════════════════════
-// WEATHER — Open-Meteo (FREE)
-// ═══════════════════════════════════════════════
-function fetchWeatherByIP(){fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>{if(d.latitude)fetchWeather(d.latitude,d.longitude);}).catch(()=>{});}
-async function fetchWeather(lat,lon){
+function clearDest(){
+  S.dest=null;S.steps=[];S.stepIdx=0;S._arrived=false;S.routes={fastest:null,shortest:null,eco:null};
+  if(S.destMarker){S.destMarker.remove();S.destMarker=null;}
+  try{S.map.removeLayer('route-line');S.map.removeLayer('route-glow');S.map.removeSource('route-src');}catch(e){}
+  document.getElementById('dc').classList.remove('show');
+  document.getElementById('rpills').classList.remove('show');
+  document.getElementById('wcard').style.display='flex';
+  document.getElementById('lscore').style.display='block';
+  document.getElementById('rbar').classList.remove('show');
+  document.getElementById('si-dest').value='';
+  document.getElementById('sx-dest').style.display='none';
+  setMsg('Destinație ștearsă.');
+}
+
+// ══════════════════════════════════
+// WEATHER — Open-Meteo (FREE, fără cheie)
+// ══════════════════════════════════
+function fetchWxByIP(){fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>{if(d.latitude)fetchWx(d.latitude,d.longitude);}).catch(()=>{});}
+async function fetchWx(lat,lon){
   try{
     const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,precipitation,wind_speed_10m&timezone=auto&forecast_days=1`);
     const d=await r.json();if(!d.current)return;
     const{temperature_2m:temp,weather_code:code,precipitation:prec,wind_speed_10m:wind}=d.current;
-    const desc=wmoDesc(code);S.weather={temp:Math.round(temp),code,prec:prec||0,wind:Math.round(wind),desc};
-    document.getElementById('w-ico').textContent=wxIco(code);
+    const desc=wmoD(code);S.weather={temp:Math.round(temp),code,prec:prec||0,wind:Math.round(wind),desc};
+    document.getElementById('w-ico').textContent=wxI(code);
     document.getElementById('w-temp').textContent=Math.round(temp)+'°C';
     document.getElementById('w-desc').textContent=desc;
-    document.getElementById('ss-wx').textContent=Math.round(temp)+'°';
-    document.getElementById('dh-wx').textContent=wxIco(code)+' '+Math.round(temp)+'°C';
-    const isRain=prec>0||(code>=51&&code<=82),isSnow=code>=71&&code<=77,isFog=code===45||code===48;
+    document.getElementById('ss-wx')&&(document.getElementById('ss-wx').textContent=Math.round(temp)+'°');
+    document.getElementById('dh-wx').textContent=wxI(code)+' '+Math.round(temp)+'°C';
+    const isR=prec>0||(code>=51&&code<=82),isS=code>=71&&code<=77,isF=code===45||code===48;
     const rb=document.getElementById('w-road');
-    if(isSnow){rb.textContent='❄ Polei posibil';rb.className='wbadge bsnow';}
-    else if(isRain){rb.textContent='💧 Umed';rb.className='wbadge bwet';}
-    else if(isFog){rb.textContent='🌫 Ceață';rb.className='wbadge bfog';}
-    else{rb.textContent='✓ Uscat';rb.className='wbadge bdry';}
-    if(!S.driving)setMsg(wxAdvice());
-    if(isSnow||(isRain&&prec>2))showAlert('aw',`⚠️ ${desc} — reduceți viteza cu 20%`);
-    setTimeout(()=>{if(S.lat)fetchWeather(S.lat,S.lon);},300000);
+    if(isS){rb.textContent='❄ Polei posibil';rb.className='wb bsnow';}
+    else if(isR){rb.textContent='💧 Umed';rb.className='wb bwet';}
+    else if(isF){rb.textContent='🌫 Ceață';rb.className='wb bfog';}
+    else{rb.textContent='✓ Uscat';rb.className='wb bdry';}
+    if(!S.driving)setMsg(wxAdv());
+    if(isS||(isR&&prec>3))showAlert('aw',`⚠️ ${desc} — reduce viteza cu 20%`);
+    setTimeout(()=>{if(S.lat)fetchWx(S.lat,S.lon);},300000);
   }catch(e){}
 }
-function wmoDesc(c){if(c===0)return'Cer senin';if(c<=2)return'Parțial noros';if(c===3)return'Noros';if(c<=48)return'Ceață';if(c<=57)return'Burniță';if(c<=67)return'Ploaie';if(c<=77)return'Ninsoare';if(c<=82)return'Averse';if(c<=99)return'Furtună';return'Variabil';}
-function wxIco(c){if(!c&&c!==0)return'🌤';if(c===0)return'☀️';if(c<=2)return'⛅';if(c<=3)return'☁️';if(c<=48)return'🌫';if(c<=57)return'🌦';if(c<=67)return'🌧';if(c<=77)return'❄️';if(c<=82)return'🌨';if(c<=99)return'⛈';return'🌤';}
-function wxAdvice(){if(!S.weather)return'Se încarcă meteo...';const{code:c,temp:t,prec:p,wind:w}=S.weather;if(c>=80&&c<=99)return'Furtună! Maxim 60 km/h, distanță dublă.';if(c>=71&&c<=77)return`Ninsoare, ${t}°C — risc polei. Maxim 50 km/h.`;if(p>0||(c>=51&&c<=82))return`${wmoDesc(c)}, ${p.toFixed(1)}mm — carosabil umed. Mărește distanța 30%.`;if(c===45||c===48)return'Ceață — faruri ceață, maxim 50 km/h.';if(w>50)return`Vânt ${w} km/h — atenție rafale laterale.`;if(t<2)return`${t}°C — risc polei pe poduri.`;return`Condiții ${wmoDesc(c)} — ${t}°C. Drum bun!`;}
-function wxCtx(){return S.weather?`Meteo: ${S.weather.desc}, ${S.weather.temp}°C, precipitații ${S.weather.prec}mm.`:'';}
-function reverseGeo(lat,lon){fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{headers:{'User-Agent':'CoachDrive/v5'}}).then(r=>r.json()).then(d=>{const a=d.address;const city=a.city||a.town||a.village||a.county||'';if(city)document.getElementById('w-city').textContent=city;document.getElementById('start-input').placeholder=`📡 GPS activ · ${a.road||a.suburb||city||'Locație detectată'}`;}).catch(()=>{});}
+function wmoD(c){if(c===0)return'Cer senin';if(c<=2)return'Parțial noros';if(c===3)return'Noros';if(c<=48)return'Ceață';if(c<=57)return'Burniță';if(c<=67)return'Ploaie';if(c<=77)return'Ninsoare';if(c<=82)return'Averse';if(c<=99)return'Furtună';return'Variabil';}
+function wxI(c){if(!c&&c!==0)return'🌤';if(c===0)return'☀️';if(c<=2)return'⛅';if(c<=3)return'☁️';if(c<=48)return'🌫';if(c<=57)return'🌦';if(c<=67)return'🌧';if(c<=77)return'❄️';if(c<=82)return'🌨';if(c<=99)return'⛈';return'🌤';}
+function wxAdv(){if(!S.weather)return'Se încarcă meteo...';const{code:c,temp:t,prec:p,wind:w}=S.weather;if(c>=80&&c<=99)return'Furtună! Maxim 60 km/h, distanță dublă.';if(c>=71&&c<=77)return`Ninsoare, ${t}°C — risc polei. Maxim 50 km/h.`;if(p>0||(c>=51&&c<=82))return`${wmoD(c)}, ${p.toFixed(1)}mm — carosabil umed. Mărește distanța de frânare cu 30%.`;if(c===45||c===48)return'Ceață — faruri ceață, maxim 50 km/h.';if(w>50)return`Vânt ${w} km/h — atenție rafale laterale.`;if(t<2)return`${t}°C — risc polei pe poduri.`;return`Condiții bune — ${t}°C, ${wmoD(c)}. Drum bun!`;}
+function reverseGeo(lat,lon){fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{headers:{'User-Agent':'CoachDrive/v5'}}).then(r=>r.json()).then(d=>{const a=d.address;const city=a.city||a.town||a.village||a.county||'';if(city)document.getElementById('w-city').textContent=city;document.getElementById('si-start').placeholder=`📡 ${a.road||a.suburb||city||'GPS activ'} — setează start`;}).catch(()=>{});}
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 // DRIVE SESSION
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 const HAZARDS=[
-  {ico:'⚠️',cls:'aw',msg:'Curbă strânsă în 300m — coboară la {s} înainte de viraj.'},
-  {ico:'📷',cls:'ad',msg:'Radar în 500m — verifică viteza. Frânare progresivă.'},
+  {ico:'⚠️',cls:'aw',msg:'Curbă strânsă în 300m — coboară la {s}km/h înainte de viraj.'},
+  {ico:'📷',cls:'ad',msg:'Radar posibil în zonă — verifică viteza.'},
   {ico:'🏫',cls:'ad',msg:'Zonă școlară — limita 30 km/h, pietoni posibili.'},
   {ico:'🕳',cls:'aw',msg:'Suprafață degradată raportată — atenție km următori.'},
   {ico:'🌉',cls:'aw',msg:'Pod — suprafața înghață prima la temperaturi scăzute.'},
 ];
-const COACH_MSGS=['Mențin distanța de siguranță — minimum 3 secunde față de vehiculul din față.','Frânare progresivă la intersecție — anticipezi bine!','Scanează intersecțiile cu 5 secunde înainte de a ajunge la ele.','Verifică unghiurile moarte înainte de a schimba banda.','Viteza medie bună. Menține ritmul constant pentru consum eco-eficient.'];
-let coachIdx=0;
 
 function startDrive(){
   if(S.driving)return;
-  S.driving=true;S.driveKm=0;S.brakingEvt=0;S.hardAccelEvt=0;S.sharpTurns=0;S.overSpeedEvt=0;
-  S.speedHist=[];S.accelHist=[];S.sessionMin=0;S._arrived=false;
+  // Auto-set start din GPS dacă nu e setat manual
+  if(!S.startLat&&S.lat){S.startLat=S.lat;S.startLon=S.lon;}
+  if(!S.startLat){
+    showAlert('ai','Apasă 📡 GPS live pentru a detecta locația de start.');
+    try{S.geoCtrl.trigger();}catch(e){}
+    return;
+  }
+  S.driving=true;S.driveKm=0;S.brakingEvt=0;S.hardAccelEvt=0;S.sharpTurnEvt=0;S.overSpeedEvt=0;
+  S.speedHist=[];S.speedTimestamps=[];S.accelValues=[];S.headingChanges=[];
+  S.sessionSec=0;S._arrived=false;S.maxSpeed=0;S.fuelUsed=0;
   document.getElementById('dhud').classList.add('on');
   document.getElementById('sbar').classList.add('show');
+  document.getElementById('dlive').classList.add('show');
   if(S.steps.length)updateTurnBar();
+
   const t0=Date.now();
   S.sessionTimer=setInterval(()=>{
-    const el=Math.floor((Date.now()-t0)/60000);
-    const sec=Math.floor(((Date.now()-t0)%60000)/1000);
-    S.sessionMin=el;
-    document.getElementById('dh-dur').textContent=`${el}:${String(sec).padStart(2,'0')}`;
-    document.getElementById('sb-t').textContent=el+' min';
-    // Coach cycling
-    if(sec===0&&el>0){const msg=COACH_MSGS[coachIdx%COACH_MSGS.length];coachIdx++;document.getElementById('dh-coach').textContent=msg;}
+    S.sessionSec=Math.floor((Date.now()-t0)/1000);
+    const m=Math.floor(S.sessionSec/60),s=S.sessionSec%60;
+    document.getElementById('dh-dur').textContent=`${m}:${String(s).padStart(2,'0')}`;
+    document.getElementById('sb-t').textContent=`${m}:${String(s).padStart(2,'0')}`;
+    updateLiveScore();
   },1000);
+
   S.hazardTimer=setInterval(()=>{
     if(!S.dest||!S.driving)return;
     let pool=[...HAZARDS];
     if(S.weather?.prec>0)pool.push({ico:'💧',cls:'aw',msg:`Carosabil umed — distanța de frânare cu 40% mai mare la ${S.speed}km/h.`});
-    if(S.weather?.temp<3)pool.push({ico:'🧊',cls:'ad',msg:`${S.weather?.temp}°C — risc polei real. Maxim 60km/h.`});
+    if(S.weather?.temp<3)pool.push({ico:'🧊',cls:'ad',msg:`${S.weather?.temp}°C — risc polei pe poduri. Frânare blândă.`});
     const h=pool[Math.floor(Math.random()*pool.length)];
-    const s2=Math.max(40,Math.round(S.speed*0.75/10)*10);
-    const msg=h.msg.replace('{s}',s2+'km/h');
+    const s2=Math.max(40,Math.round((S.speed||50)*0.75/10)*10);
+    const msg=h.msg.replace('{s}',s2);
     const strip=document.getElementById('dhaz');
     document.getElementById('dhaz-i').textContent=h.ico;
     document.getElementById('dhaz-t').textContent=msg;
     strip.className=`dhaz ${h.cls} show`;
-    document.getElementById('dh-coach').textContent=msg.split('.')[0];
-    tts(msg.split('.')[0]);
+    tts(msg.split('—')[0].trim());
     setTimeout(()=>strip.classList.remove('show'),9000);
-  },50000+Math.random()*30000);
-  const msg=S.dest?`Pornesc ruta spre ${S.dest.name}: ${S.totalKm.toFixed(1)}km, ~${S.totalMin}min. ${wxAdvice()}`:wxAdvice();
-  document.getElementById('dh-coach').textContent=msg;
-  tts(msg);
-  showAlert('ai','🚗 Sesiune activă · Coach AI monitorizează');
-  setMsg(msg);
+  },55000+Math.random()*35000);
+
+  const intro=S.dest
+    ?`Pornesc ruta spre ${S.dest.name}: ${S.totalKm.toFixed(1)}km, ~${S.totalMin}min. ${wxAdv()}`
+    :wxAdv();
+  document.getElementById('dh-coach').textContent=intro;
+  tts(intro.split('.')[0]);
+  showAlert('ai','🚗 Sesiune activă · Coach AI monitorizează din GPS');
+  setMsg(intro.split('.')[0]);
 }
 
 function stopDrive(){
@@ -1204,109 +1285,127 @@ function stopDrive(){
   S.driving=false;
   clearInterval(S.sessionTimer);clearInterval(S.hazardTimer);
   document.getElementById('dhud').classList.remove('on');
+  document.getElementById('dlive').classList.remove('show');
   const sc=calcScore();
+  S.lastScore=sc;
   saveSession(sc);
   openScoreWith(sc);
 }
 
-// ═══════════════════════════════════════════════
-// AI SCORE CALCULATOR — multi-factor
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
+// AI SCORE — calculat 100% din date GPS reale
+// ══════════════════════════════════
 function calcScore(){
-  const km=S.driveKm, dur=S.sessionMin||1;
-  const avg=S.speedHist.length?Math.round(S.speedHist.reduce((a,b)=>a+b,0)/S.speedHist.length):0;
+  const km=S.driveKm,dur=S.sessionSec/60||1;
+  const spds=S.speedHist;
+  const avg=spds.length?Math.round(spds.reduce((a,b)=>a+b,0)/spds.length):0;
+  const accels=S.accelValues.map(a=>a.a);
 
-  // SIGURANȚĂ: penalizare frânări bruște + depășiri limită
-  let safety=Math.max(0,100-(S.brakingEvt*6)-(S.overSpeedEvt*10));
-  // FRÂNARE: analiza din accelHist
-  const hardBrakes=S.accelHist.filter(a=>a<-12).length;
-  let braking=Math.max(0,100-(hardBrakes*8));
-  // VIRAJE: estimate din frânări în curbe
-  let viraje=Math.max(0,100-(S.sharpTurns*5));
-  // ACCELERARE: hard accelerations
-  let accel=Math.max(0,100-(S.hardAccelEvt*6));
-  // ECO: viteză medie, frânări
-  let eco=Math.min(100,Math.max(0,100-(S.hardAccelEvt*4)-(S.brakingEvt*3)-(avg>100?15:avg>90?8:0)));
-  // ANTICIPARE TRAFIC: mai puține frânări bruște = anticipezi mai bine
-  let anticipare=Math.max(0,100-(S.brakingEvt*4)-(hardBrakes*6));
+  // SIGURANȚĂ: frânări + depășiri + accelerări bruște
+  let safety=100;
+  safety-=Math.min(35,S.brakingEvt*6);
+  safety-=Math.min(20,S.overSpeedEvt*8);
+  safety-=Math.min(15,S.hardAccelEvt*4);
 
-  // Bonus meteo
+  // FRÂNARE: din accelerații negative reale
+  const hardBrakes=accels.filter(a=>a<-15).length;
+  const medBrakes=accels.filter(a=>a<-8&&a>=-15).length;
+  let braking=100-hardBrakes*8-medBrakes*3;
+
+  // VIRAJE: din heading changes reale
+  const sharpTurns=S.headingChanges.filter(h=>h.d>45).length;
+  const medTurns=S.headingChanges.filter(h=>h.d>25&&h.d<=45).length;
+  let viraje=100-sharpTurns*6-medTurns*2;
+
+  // ACCELERARE: din accelerații pozitive reale
+  const hardAccels=accels.filter(a=>a>18).length;
+  const medAccels=accels.filter(a=>a>10&&a<=18).length;
+  let accelScore=100-hardAccels*7-medAccels*2;
+
+  // ECO: viteză medie, frânări, accelerări
+  let eco=100;
+  if(avg>100)eco-=20;else if(avg>80)eco-=8;
+  eco-=Math.min(20,S.brakingEvt*3);
+  eco-=Math.min(15,S.hardAccelEvt*3);
+  eco+=km>10?5:0; // bonus distanță
+
+  // ANTICIPARE: mai puține frânări bruște = mai bună anticipare
+  let anticipare=100-hardBrakes*7-S.brakingEvt*4;
+
+  // Bonus condiții dificile (ploaie/ninsoare)
   if(S.weather?.prec>0){safety=Math.min(safety+5,100);anticipare=Math.min(anticipare+3,100);}
 
-  const fix=v=>Math.max(20,Math.min(100,Math.round(v)));
-  [safety,braking,viraje,accel,eco,anticipare]=[safety,braking,viraje,accel,eco,anticipare].map(fix);
-  const tot=Math.round(safety*.3+braking*.2+viraje*.1+accel*.1+eco*.15+anticipare*.15);
+  const fix=v=>Math.max(15,Math.min(100,Math.round(v)));
+  [safety,braking,viraje,accelScore,eco,anticipare]=[safety,braking,viraje,accelScore,eco,anticipare].map(fix);
+
+  const tot=Math.round(safety*.30+braking*.20+viraje*.12+accelScore*.13+eco*.13+anticipare*.12);
   const g=tot>=95?'S':tot>=88?'A+':tot>=80?'A':tot>=70?'B':tot>=60?'C':'D';
   const tag=tot>=88?'Condus Excelent!':tot>=80?'Condus Foarte Bine!':tot>=70?'Condus Bine!':tot>=60?'Loc de îmbunătățire':'Necesită atenție';
-  return{tot,g,tag,safety,braking,viraje,accel,eco,anticipare,km,dur,avg,brakingEvt:S.brakingEvt,hardAccelEvt:S.hardAccelEvt,sharpTurns:S.sharpTurns};
+  return{tot,g,tag,safety,braking,viraje,accelScore,eco,anticipare,km,dur,avg,hardBrakes,sharpTurns};
 }
 
-function genAIFeedback(sc){
+function genFeedback(sc){
   const lines=[];
-  // Safety
-  if(sc.brakingEvt===0)lines.push('Frânare impecabilă pe toată sesiunea — zero frânări bruște.');
-  else lines.push(`${sc.brakingEvt} frânare${sc.brakingEvt===1?'':' bruște'} — anticipează mai devreme intersecțiile pentru un scor mai bun.`);
-  // Acceleration
-  if(sc.hardAccelEvt===0)lines.push('Accelerare progresivă — perfect pentru consum și siguranță.');
-  else lines.push(`${sc.hardAccelEvt} accelerare${sc.hardAccelEvt===1?'':'brusca'} detectate — pornește mai blând din semafoare.`);
-  // Weather
-  if(S.weather?.prec>0)lines.push(`Ai condus în condiții de ${S.weather.desc} — prudență apreciată, bonus acordat.`);
-  // Score based
-  if(sc.tot>=88)lines.push('Sesiune de top! Menține acest nivel de concentrare.');
-  else if(sc.tot>=70)lines.push('Performanță bună. Lucrează la anticiparea traficului pentru nota A.');
-  else lines.push('Lucrează la frânarea progresivă și menținerea distanței de siguranță.');
-  // Eco
-  if(sc.eco>=85)lines.push('Consum eco excelent — conduci eficient.');
+  // Frânare — din date reale
+  if(sc.hardBrakes===0&&S.brakingEvt===0)
+    lines.push('Frânare impecabilă — zero decelerații bruște pe toată cursa.');
+  else if(sc.hardBrakes>0)
+    lines.push(`${S.brakingEvt} frânări bruște detectate (decelerație >15 km/h/s) — anticipează mai devreme intersecțiile și virajele.`);
+
+  // Accelerare
+  if(S.hardAccelEvt===0)lines.push('Accelerare progresivă pe tot traseul — excelent pentru consum și confort.');
+  else lines.push(`${S.hardAccelEvt} accelerare bruscă — pornește mai lin din semafoare.`);
+
+  // Viraje
+  if(sc.sharpTurns===0)lines.push('Viraje executate lin și controlat.');
+  else if(sc.sharpTurns>0)lines.push(`${sc.sharpTurns} viraj${sc.sharpTurns===1?'':' brusc'} — reduce viteza înainte de a vira.`);
+
+  // Condiții
+  if(S.weather?.prec>0)lines.push(`Ai condus în condiții de ${S.weather.desc} — bonus acordat pentru prudență.`);
+
+  // General
+  if(sc.tot>=88)lines.push('Sesiune excelentă! Menține concentrarea.');
+  else if(sc.tot>=70)lines.push('Bun! Lucrează la anticiparea traficului pentru nota A.');
+  else lines.push('Concentrează-te pe frânarea progresivă și menținerea distanței de siguranță.');
+
   return lines.join(' ');
 }
 
-// ═══════════════════════════════════════════════
-// SUPABASE — save & load sessions
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
+// SUPABASE — salvare/încărcare curse
+// ══════════════════════════════════
 async function saveSession(sc){
   const session={
-    score:sc.tot, grade:sc.g, km:parseFloat(sc.km.toFixed(2)),
-    duration_min:sc.dur, avg_speed:sc.avg,
-    braking_events:sc.brakingEvt, hard_accel:sc.hardAccelEvt,
-    safety:sc.safety, braking_score:sc.braking, viraje:sc.viraje,
-    accel_score:sc.accel, eco:sc.eco, anticipare:sc.anticipare,
-    weather_desc:S.weather?.desc||'', weather_temp:S.weather?.temp||null,
+    score:sc.tot,grade:sc.g,
+    km:parseFloat(sc.km.toFixed(2)),duration_min:Math.round(sc.dur),
+    avg_speed:sc.avg,max_speed:S.maxSpeed,
+    braking_events:S.brakingEvt,hard_accel:S.hardAccelEvt,sharp_turns:S.sharpTurnEvt,
+    safety:sc.safety,braking_score:sc.braking,viraje:sc.viraje,
+    accel_score:sc.accelScore,eco:sc.eco,anticipare:sc.anticipare,
+    weather_desc:S.weather?.desc||'',weather_temp:S.weather?.temp||null,
     dest_name:S.dest?.name||'Fără destinație',
-    fuel_est:parseFloat((sc.km*0.072).toFixed(2)),
+    fuel_est:parseFloat(S.fuelUsed.toFixed(2)),
     created_at:new Date().toISOString(),
   };
-  if(S.user){
-    session.user_id=S.user.id;
-    await sb.from('sessions').insert([session]);
-  }
-  // Always save locally too
-  S.history.unshift({...session, id:Date.now()});
-  localStorage.setItem('cd_hist',JSON.stringify(S.history.slice(0,50)));
+  if(S.user){session.user_id=S.user.id;try{await sb.from('sessions').insert([session]);}catch(e){}}
+  const local=JSON.parse(localStorage.getItem('cd_hist')||'[]');
+  local.unshift({...session,id:Date.now()});
+  localStorage.setItem('cd_hist',JSON.stringify(local.slice(0,50)));
+  S.history=[...local];
 }
 
-async function loadHistory(){
-  // Load from local first
+async function loadHist(){
   const local=JSON.parse(localStorage.getItem('cd_hist')||'[]');
   S.history=local;
-  if(S.user){
-    try{
-      const{data}=await sb.from('sessions').select('*').eq('user_id',S.user.id).order('created_at',{ascending:false}).limit(100);
-      if(data?.length) S.history=data;
-    }catch(e){}
-  }
-  renderHistory();
+  if(S.user){try{const{data}=await sb.from('sessions').select('*').eq('user_id',S.user.id).order('created_at',{ascending:false}).limit(100);if(data?.length)S.history=data;}catch(e){}}
+  renderHist();
 }
 
-function sortHistory(key, el){
-  S.histSort=key;
-  document.querySelectorAll('.sort-pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  renderHistory();
-}
+function sortH(key,el){S.histSort=key;document.querySelectorAll('.sp').forEach(p=>p.classList.remove('on'));el.classList.add('on');renderHist();}
 
-function renderHistory(){
-  const list=document.getElementById('hist-list');
-  if(!S.history.length){list.innerHTML='<div class="hist-empty">Nu ai curse salvate încă.<br>Pornește prima ta sesiune!</div>';return;}
+function renderHist(){
+  const list=document.getElementById('hl');
+  if(!S.history.length){list.innerHTML='<div class="he">Nu ai curse salvate încă.<br>Pornește prima ta sesiune!</div>';return;}
   const sorted=[...S.history].sort((a,b)=>{
     if(S.histSort==='score')return(b.score||0)-(a.score||0);
     if(S.histSort==='km')return(b.km||0)-(a.km||0);
@@ -1316,16 +1415,11 @@ function renderHistory(){
   });
   list.innerHTML='';
   sorted.forEach(s=>{
-    const score=s.score||0;
-    const grade=s.grade||'-';
-    const c=score>=80?'var(--safe)':score>=60?'var(--warn)':'var(--danger)';
-    const date=new Date(s.created_at).toLocaleDateString('ro-RO',{day:'2-digit',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-    const div=document.createElement('div');div.className='hist-item';
-    div.innerHTML=`
-      <div class="hi-top">
-        <div class="hi-date">${date}</div>
-        <div><div class="hi-score" style="color:${c}">${score}</div><div class="hi-grade" style="color:${c}">${grade}</div></div>
-      </div>
+    const score=s.score||0,grade=s.grade||'-';
+    const col=score>=80?'var(--safe)':score>=60?'var(--warn)':'var(--danger)';
+    const date=new Date(s.created_at).toLocaleDateString('ro-RO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    const div=document.createElement('div');div.className='hi';
+    div.innerHTML=`<div class="hi-top"><div class="hi-date">${date}</div><div><div class="hi-sc" style="color:${col}">${score}</div><div class="hi-gr" style="color:${col}">${grade}</div></div></div>
       <div class="hi-stats">
         <div class="hi-stat"><div class="hi-sv">${(s.km||0).toFixed(1)}</div><div class="hi-sl">km</div></div>
         <div class="hi-stat"><div class="hi-sv">${s.duration_min||0}</div><div class="hi-sl">min</div></div>
@@ -1333,94 +1427,88 @@ function renderHistory(){
         <div class="hi-stat"><div class="hi-sv">${(s.fuel_est||0).toFixed(1)}L</div><div class="hi-sl">consum</div></div>
       </div>
       <div class="hi-dest">📍 ${esc(s.dest_name||'Fără destinație')}</div>
-      <div class="hi-badges">
-        ${score>=88?'<span class="hi-badge">⭐ Excelent</span>':''}
-        ${(s.braking_events||0)===0?'<span class="hi-badge">🛑 Frânare lină</span>':''}
-        ${(s.eco||0)>=85?'<span class="hi-badge">🌿 Eco</span>':''}
-        ${(s.km||0)>=50?'<span class="hi-badge">🌍 Explorer</span>':''}
+      <div class="hi-bgs">
+        ${score>=88?'<span class="hi-bg">⭐ Excelent</span>':''}
+        ${(s.braking_events||0)===0?'<span class="hi-bg">🛑 Frânare perfectă</span>':''}
+        ${(s.eco||0)>=85?'<span class="hi-bg">🌿 Eco</span>':''}
+        ${(s.km||0)>=50?'<span class="hi-bg">🌍 Explorer</span>':''}
+        ${(s.max_speed||0)>0?`<span class="hi-bg" style="color:var(--warn);border-color:rgba(255,214,0,.2);background:rgba(255,214,0,.06)">🏎 max ${s.max_speed}km/h</span>`:''}
       </div>`;
     list.appendChild(div);
   });
 }
 
-function openHistory(){
-  loadHistory();
-  document.getElementById('hist-screen').classList.add('on');
-}
+function openHist(){loadHist();document.getElementById('hist').classList.add('on');}
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 // SCORE UI
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 function openScoreWith(sc){
-  if(!sc)return;
+  if(!sc){sc=S.lastScore;if(!sc)return;}
   document.getElementById('sc-num').textContent=sc.tot||'--';
   document.getElementById('sc-gr').textContent=sc.g;
   document.getElementById('sc-tag').textContent=sc.tag;
   document.getElementById('sc-lbl').textContent=`Sesiune · ${new Date().toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'})}`;
-  document.getElementById('sc-meta').textContent=`${sc.km.toFixed(1)} km · ${sc.dur} min · v.med ${sc.avg} km/h`;
+  document.getElementById('sc-meta').textContent=`${sc.km.toFixed(1)} km · ${Math.round(sc.dur)} min · v.med ${sc.avg} km/h · max ${S.maxSpeed} km/h`;
   document.getElementById('ss-km').textContent=sc.km.toFixed(1);
-  document.getElementById('ss-dur').textContent=sc.dur;
+  document.getElementById('ss-dur').textContent=Math.round(sc.dur);
   document.getElementById('ss-avg').textContent=sc.avg;
-  document.getElementById('ss-br').textContent=sc.brakingEvt;
-  document.getElementById('ss-br').style.color=sc.brakingEvt>3?'var(--warn)':'var(--safe)';
-  document.getElementById('ss-wx').textContent=S.weather?S.weather.temp+'°':'--';
-  document.getElementById('ss-fuel').textContent=(sc.km*0.072).toFixed(1)+'L';
+  document.getElementById('ss-max').textContent=S.maxSpeed;
+  document.getElementById('ss-br').textContent=S.brakingEvt;
+  document.getElementById('ss-br').style.color=S.brakingEvt>3?'var(--warn)':'var(--safe)';
+  document.getElementById('ss-fuel').textContent=S.fuelUsed.toFixed(1);
   setTimeout(()=>{
-    const vals=[sc.safety,sc.braking,sc.viraje,sc.accel,sc.eco,sc.anticipare];
-    ['s','b','v','a','e','t'].forEach((k,i)=>{
+    const vals=[sc.safety,sc.braking,sc.viraje,sc.accelScore,sc.eco,sc.anticipare];
+    ['sa','br','vi','ac','ec','an'].forEach((k,i)=>{
       document.getElementById('b-'+k).style.width=vals[i]+'%';
       document.getElementById('sc-'+k).textContent=vals[i];
     });
     document.getElementById('sc-ring').style.transition='stroke-dashoffset 2s cubic-bezier(.4,0,.2,1)';
-    document.getElementById('sc-ring').style.strokeDashoffset=414.7*(1-sc.tot/100);
+    document.getElementById('sc-ring').style.strokeDashoffset=395.8*(1-sc.tot/100);
   },120);
-  // AI Feedback
-  document.getElementById('ai-txt').textContent='"'+genAIFeedback(sc)+'"';
-  const tags=document.getElementById('ai-tags');
-  tags.innerHTML='';
-  addTag(tags,sc.brakingEvt===0?'✓ Frânare perfectă':'↑ '+sc.brakingEvt+' frânări bruște',sc.brakingEvt===0?'tgg':'tgw');
-  addTag(tags,sc.hardAccelEvt===0?'✓ Accelerare lină':'↑ '+sc.hardAccelEvt+' accelerări bruște',sc.hardAccelEvt===0?'tgg':'tgw');
+  document.getElementById('ai-txt').textContent='"'+genFeedback(sc)+'"';
+  const tags=document.getElementById('ai-tags');tags.innerHTML='';
+  addTag(tags,S.brakingEvt===0?'✓ Frânare perfectă':'↑ '+S.brakingEvt+' frânări bruște',S.brakingEvt===0?'tgg':'tgw');
+  addTag(tags,S.hardAccelEvt===0?'✓ Accelerare lină':'↑ '+S.hardAccelEvt+' accelerări bruște',S.hardAccelEvt===0?'tgg':'tgw');
+  if(sc.sharpTurns>0)addTag(tags,'↑ '+sc.sharpTurns+' viraje bruște','tgw');
   if(sc.safety>=85)addTag(tags,'✓ Siguranță ridicată','tgg');
   if(sc.eco>=80)addTag(tags,'✓ Condus eco','tgg');
-  if(S.weather?.prec>0)addTag(tags,'🌧 Ploaie — bonus acordat','tgg');
-  if(sc.tot<70)addTag(tags,'⚠ Necesită îmbunătățire','tgd');
+  if(S.weather?.prec>0)addTag(tags,'🌧 Bonus ploaie','tgg');
+  if(S.maxSpeed>0)addTag(tags,'🏎 Max '+S.maxSpeed+' km/h',S.maxSpeed>90?'tgw':'tgg');
+  if(sc.tot<65)addTag(tags,'⚠ Necesită îmbunătățire','tgd');
   document.getElementById('score').classList.add('on');
 }
-
-function openScore(){openScoreWith(null);}
-
+function openScore(){if(S.lastScore)openScoreWith(S.lastScore);}
+function addTag(el,text,cls){const t=document.createElement('span');t.className='atg '+cls;t.textContent=text;el.appendChild(t);}
 function shareScore(){
-  const sc=document.getElementById('sc-num').textContent;
-  const gr=document.getElementById('sc-gr').textContent;
-  const txt=`Am obținut scorul ${sc}/100 (nota ${gr}) pe CoachDrive! 🚗\nmitroiioana98-ai.github.io/Coach-ai/`;
-  if(navigator.share){navigator.share({title:'CoachDrive Score',text:txt,url:'https://mitroiioana98-ai.github.io/Coach-ai/'});}
-  else{navigator.clipboard?.writeText(txt);showAlert('ai','📋 Scor copiat în clipboard!');}
+  if(!S.lastScore)return;
+  const txt=`Scor CoachDrive: ${S.lastScore.tot}/100 (nota ${S.lastScore.g}) · ${S.driveKm.toFixed(1)}km · ${Math.round(S.lastScore.dur)}min 🚗\nmitroiioana98-ai.github.io/Coach-ai/`;
+  if(navigator.share)navigator.share({title:'CoachDrive',text:txt,url:'https://mitroiioana98-ai.github.io/Coach-ai/'});
+  else{try{navigator.clipboard.writeText(txt);}catch(e){}showAlert('ai','📋 Copiat în clipboard!');}
 }
 
-function addTag(el,text,cls){const t=document.createElement('span');t.className='atg '+cls;t.textContent=text;el.appendChild(t);}
-
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 // PARKING
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 async function openParking(){
   document.getElementById('pkm').classList.add('on');
   document.getElementById('pk-sub').textContent='Se caută locuri de parcare...';
   document.getElementById('pk-list').innerHTML='';
-  if(!S.lat){document.getElementById('pk-sub').textContent='GPS necesar';return;}
+  if(!S.lat){document.getElementById('pk-sub').textContent='GPS necesar pentru parcare';return;}
   try{
     const r=await fetch(`https://nominatim.openstreetmap.org/search?q=parking&format=json&limit=10&bounded=1&viewbox=${S.lon-.02},${S.lat+.015},${S.lon+.02},${S.lat-.015}&addressdetails=1`,{headers:{'User-Agent':'CoachDrive/v5'}});
     const data=await r.json();
     const parks=data.filter(p=>p.type==='parking'||p.type==='multi-storey');
-    if(!parks.length){document.getElementById('pk-sub').textContent='Nicio parcare dedicată găsită';addPark('Parcare stradală estimată','Stradă adiacentă',0.1,null,null);return;}
+    if(!parks.length){document.getElementById('pk-sub').textContent='Nicio parcare dedicată — zone posibile:';addPark('Parcare stradală estimată','Stradă adiacentă',0.1,null,null);return;}
     document.getElementById('pk-sub').textContent=parks.length+' locuri găsite';
     parks.slice(0,5).forEach(p=>{const nm=(p.namedetails?.name)||p.display_name.split(',')[0]||'Parcare';const addr=p.display_name.split(',').slice(1,3).join(',').trim();const dist=hav(S.lat,S.lon,parseFloat(p.lat),parseFloat(p.lon));addPark(nm,addr,dist,parseFloat(p.lat),parseFloat(p.lon));});
   }catch(e){document.getElementById('pk-sub').textContent='Eroare la căutare';}
 }
 function addPark(name,addr,dist,lat,lon){const el=document.createElement('div');el.className='pki';el.innerHTML=`<div class="pkii">🅿️</div><div><div class="pkin">${esc(name)}</div><div class="pkim">${esc(addr.slice(0,40))}</div></div><div class="pkid">${dist<1?(dist*1000).toFixed(0)+'m':dist.toFixed(2)+'km'}</div>`;if(lat&&lon)el.onclick=()=>{document.getElementById('pkm').classList.remove('on');selectDest({name:'🅿 '+name,addr,lat,lon});showAlert('as','🅿 Navighez spre parcare — sesiunea continuă!');};document.getElementById('pk-list').appendChild(el);}
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 // VOICE
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════
 function tts(text){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='ro-RO';u.rate=1.05;u.pitch=0.95;const ro=window.speechSynthesis.getVoices().find(v=>v.lang.startsWith('ro'));if(ro)u.voice=ro;window.speechSynthesis.speak(u);}
 let recogn=null;
 function toggleMic(){
@@ -1429,25 +1517,42 @@ function toggleMic(){
   if(recogn){recogn.stop();recogn=null;btn.textContent='🎙';btn.style.boxShadow='';return;}
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   recogn=new SR();recogn.lang='ro-RO';recogn.continuous=false;recogn.interimResults=false;
-  recogn.onresult=e=>{const txt=e.results[0][0].transcript;const r=voiceReply(txt);document.getElementById('dh-coach').textContent=r;tts(r);recogn=null;btn.textContent='🎙';btn.style.boxShadow='';};
+  recogn.onresult=e=>{
+    const txt=e.results[0][0].transcript;
+    const r=voiceReply(txt);
+    document.getElementById('dh-coach').textContent=r;
+    tts(r);
+    recogn=null;btn.textContent='🎙';btn.style.boxShadow='';
+  };
   recogn.onerror=()=>{recogn=null;btn.textContent='🎙';btn.style.boxShadow='';};
-  recogn.start();btn.textContent='🔴';btn.style.boxShadow='0 0 28px rgba(255,61,0,.5)';
+  recogn.start();btn.textContent='🔴';btn.style.boxShadow='0 0 24px rgba(255,61,0,.5)';
 }
-function voiceReply(t){const tl=t.toLowerCase();if(tl.includes('parcar'))return'Apasă butonul Parcare din bara de jos.';if(tl.includes('meteo')||tl.includes('vreme'))return S.weather?`${S.weather.desc}, ${S.weather.temp}°C. ${wxAdvice()}`:'Date meteo indisponibile.';if(tl.includes('scor'))return`Scorul tău live este ${S.liveScore}/100.`;if(tl.includes('km'))return`Ai parcurs ${S.driveKm.toFixed(1)} km.`;if(tl.includes('vitez'))return`Ești la ${S.speed} km/h. ${S.speed>80?'Recomand să cobori ușor.':'Viteză bună.'}`;return wxAdvice();}
+function voiceReply(t){
+  const tl=t.toLowerCase();
+  if(tl.includes('parcar'))return'Apasă butonul Parcare din bara de jos.';
+  if(tl.includes('meteo')||tl.includes('vreme'))return S.weather?`${S.weather.desc}, ${S.weather.temp}°C. ${wxAdv()}`:'Date meteo indisponibile.';
+  if(tl.includes('scor'))return`Scorul tău live este ${S.liveScore}/100.`;
+  if(tl.includes('km'))return`Ai parcurs ${S.driveKm.toFixed(1)} km din ${S.totalKm.toFixed(1)} km total.`;
+  if(tl.includes('vitez'))return`Viteza curentă: ${S.speed||0} km/h. Medie sesiune: ${S.speedHist.length?Math.round(S.speedHist.reduce((a,b)=>a+b,0)/S.speedHist.length):0} km/h.`;
+  if(tl.includes('frân'))return`Frânări bruște: ${S.brakingEvt}. ${S.brakingEvt===0?'Excelent!':'Anticipează mai devreme.'}`;
+  if(tl.includes('consum'))return`Consum estimat: ${S.fuelUsed.toFixed(1)} litri pe ${S.driveKm.toFixed(1)} km.`;
+  return wxAdv();
+}
 
-// ═══════════════════════════════════════════════
-// ALERTS & UTILS
-// ═══════════════════════════════════════════════
-function showAlert(cls,text){const el=document.getElementById('alert'),tx=document.getElementById('alert-txt');el.className=cls+' show';tx.textContent=text;tx.style.color=cls==='aw'?'var(--warn)':cls==='ad'?'var(--danger)':cls==='as'?'var(--safe)':'var(--info)';document.getElementById('a-ico').textContent=cls==='aw'?'⚠️':cls==='ad'?'🚨':cls==='as'?'✅':'ℹ️';clearTimeout(S.alertTimer);S.alertTimer=setTimeout(hideAlert,7000);}
+// ══════════════════════════════════
+// UTILS
+// ══════════════════════════════════
+function showAlert(cls,text){
+  const el=document.getElementById('alert'),tx=document.getElementById('a-txt');
+  el.className=cls+' show';tx.textContent=text;
+  tx.style.color=cls==='aw'?'var(--warn)':cls==='ad'?'var(--danger)':cls==='as'?'var(--safe)':'var(--info)';
+  document.getElementById('a-ico').textContent=cls==='aw'?'⚠️':cls==='ad'?'🚨':cls==='as'?'✅':'ℹ️';
+  clearTimeout(S.alertTimer);S.alertTimer=setTimeout(hideAlert,7000);
+}
 function hideAlert(){document.getElementById('alert').classList.remove('show');}
 function hav(la1,lo1,la2,lo2){const R=6371,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180;const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
-function setMsg(msg){const el=document.getElementById('coach-msg');el.style.opacity='0';setTimeout(()=>{el.textContent=msg;el.style.transition='opacity .4s';el.style.opacity='1';},200);}
+function setMsg(msg){const el=document.getElementById('coach-msg');el.style.opacity='0';setTimeout(()=>{el.textContent=msg;el.style.transition='opacity .4s';el.style.opacity='1';},180);}
 function setNav(el){document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
-
-// Supabase table creation hint (run once in Supabase SQL editor):
-// CREATE TABLE sessions (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, user_id uuid REFERENCES auth.users, score int, grade text, km float, duration_min int, avg_speed int, braking_events int, hard_accel int, safety int, braking_score int, viraje int, accel_score int, eco int, anticipare int, weather_desc text, weather_temp int, dest_name text, fuel_est float, created_at timestamptz DEFAULT now());
-// ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
-// CREATE POLICY "Users see own sessions" ON sessions FOR ALL USING (auth.uid() = user_id);
 </script>
 </body>
 </html>
